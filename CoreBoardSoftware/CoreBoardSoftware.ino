@@ -33,12 +33,19 @@ void setup() {
     MR_Motor.setSerialPort(&MR_SERIAL);
     BR_Motor.setSerialPort(&BR_SERIAL);
 
+    //Initialize Buttons
+    pinMode(REVERSE, INPUT);
+    pinMode(B_ENC_0, INPUT);
+    pinMode(B_ENC_1, INPUT);
+    pinMode(B_ENC_2, INPUT);
+    pinMode(B_ENC_3, INPUT);
+
     //Initialize NeoPixel
     neoPixel.begin();
     neoPixel.setBrightness(MAX_BRIGHTNESS);
     
     //Start RoveComm
-    RoveComm.begin(RC_COREBOARDBOARD_FIRSTOCTET, RC_COREBOARDBOARD_SECONDOCTET, RC_COREBOARDBOARD_THIRDOCTET, RC_COREBOARDBOARD_FOURTHOCTET);
+    RoveComm.begin(RC_COREBOARD_FIRSTOCTET, RC_COREBOARD_SECONDOCTET, RC_COREBOARD_THIRDOCTET, RC_COREBOARD_FOURTHOCTET);
 
     telemetry.begin(Telemetry, TELEMETRY_UPDATE);
     
@@ -51,6 +58,8 @@ void loop()
 { 
     //Read incoming packet
     packet = RoveComm.read();
+
+
 
     //Multimedia Packets
     switch(packet.data_id) {
@@ -213,8 +222,7 @@ void loop()
         }
     }
     
-/*
-    maxRamp = (millis() - lastRampTime) * DRIVE_MAX_RAMP;
+/*    maxRamp = (millis() - lastRampTime) * DRIVE_MAX_RAMP;
     for(int i = 0; i < 6; i++)
     {
         if((motorTargets[i] > motorSpeeds[i]) && ((motorTargets[i] - motorSpeeds[i]) > maxRamp))
@@ -236,8 +244,9 @@ void loop()
     BL_Motor.setDuty((float)motorSpeeds[2]);
     FR_Motor.setDuty((float)motorSpeeds[3]);
     MR_Motor.setDuty((float)motorSpeeds[4]);
-    BR_Motor.setDuty((float)motorSpeeds[5]);
-    */
+    BR_Motor.setDuty((float)motorSpeeds[5]); */
+
+    manualButtons();
 
     neoPixel.show();
 
@@ -257,7 +266,11 @@ void EStop()
 
 void Telemetry()
 {
-    //Converts Motor Current to a value from {-DRIVE_MAX_RPM, DRIVE_MAX_RPM} -> {-1000, 1000}
+    //***************************************************************************************************//
+    //************************ MIGHT NEED TO CHANGE FROM (-1000, 1000) to (-1,1) ************************//
+    //***************************************************************************************************//
+
+    //Converts Vesc RPM values to a value from {-DRIVE_MAX_RPM, DRIVE_MAX_RPM} -> {-1000, 1000}
     if(FL_Motor.getVescValues()) {
         motorCurrent[0] = (float)map(FL_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
     } else {
@@ -448,7 +461,9 @@ void manualButtons()
                 break;
         }
     }
-
+    
+    lastManualButtons = manualButtons;
+    
     FL_Motor.setDuty((float)motorSpeeds[0]);
     ML_Motor.setDuty((float)motorSpeeds[1]);
     BL_Motor.setDuty((float)motorSpeeds[2]);

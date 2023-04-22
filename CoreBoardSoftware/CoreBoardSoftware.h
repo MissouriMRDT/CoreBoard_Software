@@ -27,7 +27,7 @@ IntervalTimer watchdog;
 bool watchdogOverride = false;
 
 
-//Rovecomm
+//Rovecomm Declaration
 EthernetServer TCPServer(RC_ROVECOMM_ETHERNET_TCP_PORT);
 RoveCommEthernet RoveComm;
 rovecomm_packet packet;
@@ -38,7 +38,7 @@ uint32_t maxRamp;
 
 Adafruit_NeoPixel neoPixel = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL);
 
-//Vesc Serial
+//Vesc Serial Declaration
 VescUart FL_Motor;
 VescUart FR_Motor;
 VescUart ML_Motor;
@@ -56,9 +56,10 @@ Servo leftPanServo, leftTiltServo, leftDriveServo;
 Servo rightPanServo, rightTiltServo, rightDriveServo;
 Servo servo7, servo8, servo9;
 
+//Buttons Declaration
 uint8_t lastManualButtons = 0;
 
-//Estop Decleration
+//Estop Declaration
 void EStop();
 void Telemetry();
 
