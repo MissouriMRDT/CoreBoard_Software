@@ -181,48 +181,34 @@ void loop()
         //Set All Left and All Right Motors to a DutyCycle [-1, 1]
         case RC_DRIVEBOARD_DRIVELEFTRIGHT_DATA_ID:
         {
-            float* mutualSpeeds;
-            mutualSpeeds = (float*)packet.data;
+            float* data;
+            data = (float*)packet.data;
 
-            float leftSpeed = mutualSpeeds[0];
-            float rightSpeed = mutualSpeeds[1];
+            float leftSpeed = data[0];
+            float rightSpeed = data[1];
 
             for(int i = 0; i < 6; i++) 
                 motorTargets[i] = (i < 3) ? leftSpeed : rightSpeed;
 
             watchdog.begin(EStop, WATCHDOG_TIME);
-
-            FL_Motor.setDuty((float)leftSpeed);
-            ML_Motor.setDuty((float)leftSpeed);
-            BL_Motor.setDuty((float)leftSpeed);
-            FR_Motor.setDuty((float)rightSpeed);
-            MR_Motor.setDuty((float)rightSpeed);
-            BR_Motor.setDuty((float)rightSpeed);
             break;
         }
 
         //Set All individual Motors to a DutyCycle [-1, 1]
         case RC_DRIVEBOARD_DRIVEINDIVIDUAL_DATA_ID:
         {
-            float* speeds;
-            speeds = (float*)packet.data;
+            float* data;
+            data = (float*)packet.data;
 
             for(int i = 0; i < 6; i++) 
-                motorTargets[i] = speeds[i];
+                motorTargets[i] = data[i];
 
             watchdog.begin(EStop, WATCHDOG_TIME);
-                        
-            FL_Motor.setDuty((float)speeds[0]);
-            ML_Motor.setDuty((float)speeds[1]);
-            BL_Motor.setDuty((float)speeds[2]);
-            FR_Motor.setDuty((float)speeds[3]);
-            MR_Motor.setDuty((float)speeds[4]);
-            BR_Motor.setDuty((float)speeds[5]);
             break;
         }
     }
-    
-/*    maxRamp = (millis() - lastRampTime) * DRIVE_MAX_RAMP;
+
+    maxRamp = (millis() - lastRampTime) * DRIVE_MAX_RAMP;
     for(int i = 0; i < 6; i++)
     {
         if((motorTargets[i] > motorSpeeds[i]) && ((motorTargets[i] - motorSpeeds[i]) > maxRamp))
@@ -239,75 +225,65 @@ void loop()
             motorSpeeds[i] = motorTargets[i];
     }
 
-    FL_Motor.setDuty((float)motorSpeeds[0]);
-    ML_Motor.setDuty((float)motorSpeeds[1]);
-    BL_Motor.setDuty((float)motorSpeeds[2]);
-    FR_Motor.setDuty((float)motorSpeeds[3]);
-    MR_Motor.setDuty((float)motorSpeeds[4]);
-    BR_Motor.setDuty((float)motorSpeeds[5]); */
-
     manualButtons();
+
+    FL_Motor.setDuty(motorSpeeds[0]);
+    ML_Motor.setDuty(motorSpeeds[1]);
+    BL_Motor.setDuty(motorSpeeds[2]);
+    FR_Motor.setDuty(motorSpeeds[3]);
+    MR_Motor.setDuty(motorSpeeds[4]);
+    BR_Motor.setDuty(motorSpeeds[5]);
+
 
     neoPixel.show();
 
     lastRampTime = millis();
 }
 
-void EStop() 
-{    
-    if(!watchdogOverride) 
-    {
-        for(int i = 0; i < 6; i++) 
-            motorTargets[i] = 0;
 
-        watchdog.begin(EStop, WATCHDOG_TIME);
-    }   
-}
 
 void Telemetry()
 {
-    //***************************************************************************************************//
-    //************************ MIGHT NEED TO CHANGE FROM (-1000, 1000) to (-1,1) ************************//
-    //***************************************************************************************************//
+    int16_t motorCurrent[6] = {};
 
-    //Converts Vesc RPM values to a value from {-DRIVE_MAX_RPM, DRIVE_MAX_RPM} -> {-1000, 1000}
+    //Converts Vesc RPM values to a value from [-DRIVE_MAX_RPM, DRIVE_MAX_RPM] -> [-1000, 1000]
     if(FL_Motor.getVescValues()) {
-        motorCurrent[0] = (float)map(FL_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
+        motorCurrent[0] = map(FL_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
     } else {
         motorCurrent[0] = 0;
     }
 
 
     if(ML_Motor.getVescValues()) {
-        motorCurrent[1] = (float)map(ML_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
+        motorCurrent[1] = map(ML_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
     } else {
         motorCurrent[1] = 0;
     }
 
 
     if(BL_Motor.getVescValues()) {
-        motorCurrent[2] = (float)map(BL_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
+        motorCurrent[2] = map(BL_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
     } else {
         motorCurrent[2] = 0;
     }
 
     
     if(FR_Motor.getVescValues()) {
-        motorCurrent[3] = (float)map(FR_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
+        motorCurrent[3] = map(FR_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
     } else {
         motorCurrent[3] = 0;
     }
 
 
     if(MR_Motor.getVescValues()) {
-        motorCurrent[4] = (float)map(MR_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
+        motorCurrent[4] = map(MR_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
     } else {
         motorCurrent[4] = 0;
     }
 
 
     if(BR_Motor.getVescValues()) {
-        motorCurrent[5] = (float)map(BR_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
+        motorCurrent[5] = map(BR_Motor.data.rpm, -DRIVE_MAX_RPM, DRIVE_MAX_RPM, -1000, 1000);
     } else {
         motorCurrent[5] = 0;
     }
@@ -461,13 +437,17 @@ void manualButtons()
                 break;
         }
     }
-    
+
     lastManualButtons = manualButtons;
-    
-    FL_Motor.setDuty((float)motorSpeeds[0]);
-    ML_Motor.setDuty((float)motorSpeeds[1]);
-    BL_Motor.setDuty((float)motorSpeeds[2]);
-    FR_Motor.setDuty((float)motorSpeeds[3]);
-    MR_Motor.setDuty((float)motorSpeeds[4]);
-    BR_Motor.setDuty((float)motorSpeeds[5]);
+}
+
+void EStop() 
+{    
+    if(!watchdogOverride) 
+    {
+        for(int i = 0; i < 6; i++) 
+            motorTargets[i] = 0;
+
+        watchdog.begin(EStop, WATCHDOG_TIME);
+    }   
 }

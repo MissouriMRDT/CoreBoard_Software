@@ -47,8 +47,8 @@ VescUart BL_Motor;
 VescUart BR_Motor;
 
 //All wheels are in order of FL, ML, BL, FR, MR, BR
-int16_t motorTargets[6] = {0, 0, 0, 0, 0, 0}; //FL, ML, BL, FR, MR, BR
-int16_t motorSpeeds[6] = {0, 0, 0, 0, 0, 0}; //FL, ML, BL, FR, MR, BR
+float motorTargets[6] = {0, 0, 0, 0, 0, 0}; //FL, ML, BL, FR, MR, BR
+float motorSpeeds[6] = {0, 0, 0, 0, 0, 0}; //FL, ML, BL, FR, MR, BR
 float motorCurrent[6] = {};
 
 //Servo Declarations - Three 9-pin Connectors each with Three Servos
