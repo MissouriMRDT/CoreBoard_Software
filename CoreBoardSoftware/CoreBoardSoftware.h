@@ -47,13 +47,16 @@ VescUart BL_Motor;
 VescUart BR_Motor;
 
 //All wheels are in order of FL, ML, BL, FR, MR, BR
-float motorTargets[6] = {0, 0, 0, 0, 0, 0}; //FL, ML, BL, FR, MR, BR
-float motorSpeeds[6] = {0, 0, 0, 0, 0, 0}; //FL, ML, BL, FR, MR, BR
+float motorTargets[6] = {0, 0, 0, 0, 0, 0};
+float motorSpeeds[6] = {0, 0, 0, 0, 0, 0};
 
 //Servo Declarations - Three 9-pin Connectors each with Three Servos
-Servo leftPanServo, leftTiltServo, leftDriveServo;
-Servo rightPanServo, rightTiltServo, rightDriveServo;
+Servo leftDriveServo, leftPanServo, leftTiltServo;
+Servo rightDriveServo, rightPanServo, rightTiltServo;
 Servo servo7, servo8, servo9;
+
+//All servos are in order of leftDrive, leftPan, leftTilt, rightDrive, rightPan, rightTilt, 7, 8, 9
+int servoTargets[9] = {90, 90, 90, 90, 90, 90, 90, 90, 90};
 
 //Buttons Declaration
 uint8_t lastManualButtons = 0;

@@ -1,7 +1,6 @@
 #include "CoreBoardSoftware.h"
 
 void setup() {
-
     // Initialize debug serial port
     Serial.begin(9600);
     Serial.println("Serial init");
@@ -139,7 +138,7 @@ void loop()
         case RC_GIMBALBOARD_LEFTDRIVEGIMBALINCREMENT_DATA_ID:
         {
             int16_t data = ((int16_t*) packet.data)[0];
-            incrementGimbal(leftDriveServo, data);
+            servoTargets[0] += data;
             break;
         }
 
@@ -147,7 +146,7 @@ void loop()
         case RC_GIMBALBOARD_RIGHTDRIVEGIMBALINCREMENT_DATA_ID:
         {
             int16_t data = ((int16_t*) packet.data)[0];
-            incrementGimbal(rightDriveServo, data);
+            servoTargets[3] += data;
             break;
         }
 
@@ -155,8 +154,8 @@ void loop()
         case RC_GIMBALBOARD_LEFTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            incrementGimbal(leftPanServo, data[0]);
-            incrementGimbal(leftTiltServo, data[1]);
+            servoTargets[1] += data;
+            servoTargets[2] += data;
             break;
         }
 
@@ -164,8 +163,8 @@ void loop()
         case RC_GIMBALBOARD_RIGHTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            incrementGimbal(rightPanServo, data[0]);
-            incrementGimbal(rightTiltServo, data[1]);
+            servoTargets[4] += data;
+            servoTargets[5] += data;
             break;
         }
 
@@ -234,6 +233,20 @@ void loop()
     MR_Motor.setDuty(motorSpeeds[4]);
     BR_Motor.setDuty(motorSpeeds[5]);
 
+    for(int i = 0; i < 9; i++){
+        if(servoTargets[i] > 180) servoTargets[i] = 180;
+        if(servoTargets[i] < 0) servoTargets[i] = 0;
+    }
+
+    leftDriveServo.write(servoTargets[0]);
+    leftPanServo.write(servoTargets[1]);
+    leftTiltServo.write(servoTargets[2]);
+    rightDriveServo.write(servoTargets[3]);
+    rightPanServo.write(servoTargets[4]);
+    rightTiltServo.write(servoTargets[5]);
+    servo7.write(servoTargets[6]);
+    servo8.write(servoTargets[7]);
+    servo9.write(servoTargets[8]);
 
     neoPixel.show();
 
@@ -292,14 +305,6 @@ void Telemetry()
 }
 
 
-void incrementServo(Servo servo, const int16_t &incrementVal)
-{
-    int16_t target = servo.read() + incrementVal;
-    if(target > 180) target = 180;
-    if(target < 0) target = 0;
-
-    servo.write(target);
-}
 
 void manualButtons()
 {
@@ -333,39 +338,39 @@ void manualButtons()
                 break;
 
             case 7: //S1
-                leftPanServo.write((reverse? 0 : 180));
+                servoTargets[1] = ((reverse? 0 : 180));
                 break;
             
             case 8: //S2
-                leftTiltServo.write((reverse? 0 : 180));
+                servoTargets[2] = ((reverse? 0 : 180));
                 break;
             
             case 9: //S3
-                leftDriveServo.write((reverse? 0 : 180));
+                servoTargets[0] = ((reverse? 0 : 180));
                 break;
             
             case 10: //S4
-                rightPanServo.write((reverse? 0 : 180));
+                servoTargets[4] = ((reverse? 0 : 180));
                 break;
             
             case 11: //S5
-                rightTiltServo.write((reverse? 0 : 180));
+                servoTargets[5] = ((reverse? 0 : 180));
                 break;
             
             case 12: //S6
-                rightDriveServo.write((reverse? 0 : 180));
+                servoTargets[3] = ((reverse? 0 : 180));
                 break;
             
             case 13: //S7
-                servo7.write((reverse? 0 : 180));
+                servoTargets[6] = ((reverse? 0 : 180));
                 break;
             
             case 14: //S8
-                servo8.write((reverse? 0 : 180));
+                servoTargets[7] = ((reverse? 0 : 180));
                 break;
             
             case 15: //S9
-                servo9.write((reverse? 0 : 180));
+                servoTargets[8] = ((reverse? 0 : 180));
                 break;
 
             default:
@@ -398,39 +403,39 @@ void manualButtons()
                 break;
 
             case 7: //S1
-                leftPanServo.write(90);
+                servoTargets[2] = 90;
                 break;
             
             case 8: //S2
-                leftTiltServo.write(90);
+                servoTargets[3] = 90;
                 break;
             
             case 9: //S3
-                leftDriveServo.write(90);
+                servoTargets[1] = 90;
                 break;
             
             case 10: //S4
-                rightPanServo.write(90);
+                servoTargets[4] = 90;
                 break;
             
             case 11: //S5
-                rightTiltServo.write(90);
+                servoTargets[5] = 90;
                 break;
             
             case 12: //S6
-                rightDriveServo.write(90);
+                servoTargets[3] = 90;
                 break;
             
             case 13: //S7
-                servo7.write(90);
+                servoTargets[6] = 90;
                 break;
             
             case 14: //S8
-                servo8.write(90);
+                servoTargets[7] = 90;
                 break;
             
             case 15: //S9
-                servo9.write(90);
+                servoTargets[8] = 90;
                 break;
 
             default:
