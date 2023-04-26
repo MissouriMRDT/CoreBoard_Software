@@ -6,12 +6,12 @@ void setup() {
     Serial.println("Serial init");
 
     //Attach Servos to Pins
-    leftPanServo.attach(SERVO_1);
-    leftTiltServo.attach(SERVO_2);
-    leftDriveServo.attach(SERVO_3);
-    rightPanServo.attach(SERVO_4);
-    rightTiltServo.attach(SERVO_5);
-    rightDriveServo.attach(SERVO_6);
+    leftDriveServo.attach(SERVO_1);
+    leftPanServo.attach(SERVO_2);
+    leftTiltServo.attach(SERVO_3);
+    rightDriveServo.attach(SERVO_4);
+    rightPanServo.attach(SERVO_5);
+    rightTiltServo.attach(SERVO_6);
     servo7.attach(SERVO_7);
     servo8.attach(SERVO_8);
     servo9.attach(SERVO_9);
@@ -39,14 +39,22 @@ void setup() {
     pinMode(B_ENC_2, INPUT);
     pinMode(B_ENC_3, INPUT);
 
+    //Initialize LED
+    pinMode(LED_TX, OUTPUT);
+    pinMode(LED_RX, OUTPUT);
+    digitalWrite(LED_TX, LOW);
+    digitalWrite(LED_RX, LOW);
+
     //Initialize NeoPixel
     neoPixel.begin();
     neoPixel.setBrightness(MAX_BRIGHTNESS);
     
     //Start RoveComm
-    RoveComm.begin(RC_COREBOARD_FIRSTOCTET, RC_COREBOARD_SECONDOCTET, RC_COREBOARD_THIRDOCTET, RC_COREBOARD_FOURTHOCTET);
-
+    RoveComm.begin(RC_COREBOARD_FIRSTOCTET, RC_COREBOARD_SECONDOCTET, RC_COREBOARD_THIRDOCTET, RC_COREBOARD_FOURTHOCTET, &TCPServer);
+ 
     telemetry.begin(Telemetry, TELEMETRY_UPDATE);
+
+    servoStartups();
     
     lastRampTime = millis();
 
@@ -137,7 +145,7 @@ void loop()
         // Increment left drive gimbal by [-180, 180]
         case RC_GIMBALBOARD_LEFTDRIVEGIMBALINCREMENT_DATA_ID:
         {
-            int16_t data = ((int16_t*) packet.data)[0];
+            int16_t data = ((int16_t) packet.data[0]);
             servoTargets[0] += data;
             break;
         }
@@ -145,7 +153,7 @@ void loop()
         // Increment right drive gimbal by [-180, 180]
         case RC_GIMBALBOARD_RIGHTDRIVEGIMBALINCREMENT_DATA_ID:
         {
-            int16_t data = ((int16_t*) packet.data)[0];
+            int16_t data = ((int16_t) packet.data[0]);
             servoTargets[3] += data;
             break;
         }
@@ -207,7 +215,7 @@ void loop()
         }
     }
 
-    maxRamp = (millis() - lastRampTime) * DRIVE_MAX_RAMP;
+    /* maxRamp = (millis() - lastRampTime) * DRIVE_MAX_RAMP;
     for(int i = 0; i < 6; i++)
     {
         if((motorTargets[i] > motorSpeeds[i]) && ((motorTargets[i] - motorSpeeds[i]) > maxRamp))
@@ -222,20 +230,20 @@ void loop()
         }
         else 
             motorSpeeds[i] = motorTargets[i];
-    }
+    } */
 
     manualButtons();
 
-    FL_Motor.setDuty(motorSpeeds[0]);
-    ML_Motor.setDuty(motorSpeeds[1]);
-    BL_Motor.setDuty(motorSpeeds[2]);
-    FR_Motor.setDuty(motorSpeeds[3]);
-    MR_Motor.setDuty(motorSpeeds[4]);
-    BR_Motor.setDuty(motorSpeeds[5]);
+    FL_Motor.setDuty(motorTargets[0]);
+    ML_Motor.setDuty(motorTargets[1]);
+    BL_Motor.setDuty(motorTargets[2]);
+    FR_Motor.setDuty(motorTargets[3]);
+    MR_Motor.setDuty(motorTargets[4]);
+    BR_Motor.setDuty(motorTargets[5]);
 
     for(int i = 0; i < 9; i++){
-        if(servoTargets[i] > 180) servoTargets[i] = 180;
-        if(servoTargets[i] < 0) servoTargets[i] = 0;
+        if(servoTargets[i] > SERVO_1_MAX) servoTargets[i] = SERVO_1_MAX;
+        if(servoTargets[i] < SERVO_1_MIN) servoTargets[i] = SERVO_1_MIN;
     }
 
     leftDriveServo.write(servoTargets[0]);
@@ -257,7 +265,7 @@ void loop()
 
 void Telemetry()
 {
-    int16_t motorCurrent[6] = {};
+    int16_t motorCurrent[6];
 
     //Converts Vesc RPM values to a value from [-DRIVE_MAX_RPM, DRIVE_MAX_RPM] -> [-1000, 1000]
     if(FL_Motor.getVescValues()) {
@@ -338,39 +346,39 @@ void manualButtons()
                 break;
 
             case 7: //S1
-                servoTargets[1] = ((reverse? 0 : 180));
+                servoTargets[1] += (reverse? -5 : 5);
                 break;
             
             case 8: //S2
-                servoTargets[2] = ((reverse? 0 : 180));
+                servoTargets[2] += (reverse? -5 : 5);
                 break;
             
             case 9: //S3
-                servoTargets[0] = ((reverse? 0 : 180));
+                servoTargets[3] += (reverse? -5 : 5);
                 break;
             
             case 10: //S4
-                servoTargets[4] = ((reverse? 0 : 180));
+                servoTargets[4] += (reverse? -5 : 5);
                 break;
             
             case 11: //S5
-                servoTargets[5] = ((reverse? 0 : 180));
+                servoTargets[5] += (reverse? -5 : 5);
                 break;
             
             case 12: //S6
-                servoTargets[3] = ((reverse? 0 : 180));
+                servoTargets[6] += (reverse? -5 : 5);
                 break;
             
             case 13: //S7
-                servoTargets[6] = ((reverse? 0 : 180));
+                servoTargets[7] += (reverse? -5 : 5);
                 break;
             
             case 14: //S8
-                servoTargets[7] = ((reverse? 0 : 180));
+                servoTargets[8] += (reverse? -5 : 5);
                 break;
             
             case 15: //S9
-                servoTargets[8] = ((reverse? 0 : 180));
+                servoTargets[9] += (reverse? -5 : 5);
                 break;
 
             default:
@@ -403,39 +411,30 @@ void manualButtons()
                 break;
 
             case 7: //S1
-                servoTargets[2] = 90;
                 break;
-            
+
             case 8: //S2
-                servoTargets[3] = 90;
                 break;
             
             case 9: //S3
-                servoTargets[1] = 90;
                 break;
             
             case 10: //S4
-                servoTargets[4] = 90;
                 break;
             
             case 11: //S5
-                servoTargets[5] = 90;
                 break;
             
             case 12: //S6
-                servoTargets[3] = 90;
                 break;
             
             case 13: //S7
-                servoTargets[6] = 90;
                 break;
             
             case 14: //S8
-                servoTargets[7] = 90;
                 break;
             
             case 15: //S9
-                servoTargets[8] = 90;
                 break;
 
             default:
@@ -444,6 +443,42 @@ void manualButtons()
     }
 
     lastManualButtons = manualButtons;
+}
+
+void servoStartups()
+{
+    delay(500);
+    leftDriveServo.write(SERVO_1_MIN);
+    leftPanServo.write(SERVO_2_MIN);
+    leftTiltServo.write(SERVO_3_MIN);
+    rightDriveServo.write(SERVO_4_MIN);
+    rightPanServo.write(SERVO_5_MIN);
+    rightTiltServo.write(SERVO_6_MIN);
+    servo7.write(SERVO_7_MIN);
+    servo8.write(SERVO_8_MIN);
+    servo9.write(SERVO_9_MIN);
+
+    delay(500);
+    leftDriveServo.write(SERVO_1_MAX);
+    leftPanServo.write(SERVO_2_MAX);
+    leftTiltServo.write(SERVO_3_MAX);
+    rightDriveServo.write(SERVO_4_MAX);
+    rightPanServo.write(SERVO_5_MAX);
+    rightTiltServo.write(SERVO_6_MAX);
+    servo7.write(SERVO_7_MAX);
+    servo8.write(SERVO_8_MAX);
+    servo9.write(SERVO_9_MAX);
+
+    delay(500);
+    leftDriveServo.write(servoTargets[0]);
+    leftPanServo.write(servoTargets[1]);
+    leftTiltServo.write(servoTargets[2]);
+    rightDriveServo.write(servoTargets[3]);
+    rightPanServo.write(servoTargets[4]);
+    rightTiltServo.write(servoTargets[5]);
+    servo7.write(servoTargets[6]);
+    servo8.write(servoTargets[7]);
+    servo9.write(servoTargets[8]);
 }
 
 void EStop() 

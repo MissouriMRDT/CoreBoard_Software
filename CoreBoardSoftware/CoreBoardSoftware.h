@@ -11,13 +11,32 @@
 #include <Servo.h>
 #include <Adafruit_NeoPixel.h>
 
-
-#define MAX_BRIGHTNESS          130
+#define MAX_BRIGHTNESS          70
 #define LED_COUNT               256
 
 #define DRIVE_MIN_RPM           2000
 #define DRIVE_MAX_RPM           30000
 #define DRIVE_MAX_RAMP          0.005
+
+#define SERVO_1_MIN             -180    //leftDrive
+#define SERVO_2_MIN             -180    //leftPan
+#define SERVO_3_MIN             -180    //leftTilt
+#define SERVO_4_MIN             -180    //rightDrive
+#define SERVO_5_MIN             -180    //rightPan
+#define SERVO_6_MIN             -180    //rightTilt
+#define SERVO_7_MIN             -180
+#define SERVO_8_MIN             -180
+#define SERVO_9_MIN             -180
+
+#define SERVO_1_MAX             180     //leftDrive
+#define SERVO_2_MAX             180     //leftPan
+#define SERVO_3_MAX             180     //leftTilt
+#define SERVO_4_MAX             180     //rightDrive
+#define SERVO_5_MAX             180     //rightPan
+#define SERVO_6_MAX             180     //rightTilt
+#define SERVO_7_MAX             180
+#define SERVO_8_MAX             180
+#define SERVO_9_MAX             180
 
 #define TELEMETRY_UPDATE        150000
 IntervalTimer telemetry;
@@ -56,7 +75,7 @@ Servo rightDriveServo, rightPanServo, rightTiltServo;
 Servo servo7, servo8, servo9;
 
 //All servos are in order of leftDrive, leftPan, leftTilt, rightDrive, rightPan, rightTilt, 7, 8, 9
-int servoTargets[9] = {90, 90, 90, 90, 90, 90, 90, 90, 90};
+int16_t servoTargets[9] = {90, 90, 90, 90, 90, 90, 90, 90, 90};
 
 //Buttons Declaration
 uint8_t lastManualButtons = 0;
