@@ -162,8 +162,8 @@ void loop()
         case RC_GIMBALBOARD_LEFTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            servoTargets[1] += data;
-            servoTargets[2] += data;
+            servoTargets[1] += data[0];
+            servoTargets[2] += data[1];
             break;
         }
 
@@ -171,8 +171,8 @@ void loop()
         case RC_GIMBALBOARD_RIGHTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            servoTargets[4] += data;
-            servoTargets[5] += data;
+            servoTargets[4] += data[0];
+            servoTargets[5] += data[1];
             break;
         }
 
@@ -215,7 +215,7 @@ void loop()
         }
     }
 
-    /* maxRamp = (millis() - lastRampTime) * DRIVE_MAX_RAMP;
+    maxRamp = (millis() - lastRampTime) * DRIVE_MAX_RAMP;
     for(int i = 0; i < 6; i++)
     {
         if((motorTargets[i] > motorSpeeds[i]) && ((motorTargets[i] - motorSpeeds[i]) > maxRamp))
@@ -230,21 +230,16 @@ void loop()
         }
         else 
             motorSpeeds[i] = motorTargets[i];
-    } */
+    }
 
     manualButtons();
 
-    FL_Motor.setDuty(motorTargets[0]);
-    ML_Motor.setDuty(motorTargets[1]);
-    BL_Motor.setDuty(motorTargets[2]);
-    FR_Motor.setDuty(motorTargets[3]);
-    MR_Motor.setDuty(motorTargets[4]);
-    BR_Motor.setDuty(motorTargets[5]);
-
-    for(int i = 0; i < 9; i++){
-        if(servoTargets[i] > SERVO_1_MAX) servoTargets[i] = SERVO_1_MAX;
-        if(servoTargets[i] < SERVO_1_MIN) servoTargets[i] = SERVO_1_MIN;
-    }
+    FL_Motor.setDuty(motorSpeeds[0]);
+    ML_Motor.setDuty(motorSpeeds[1]);
+    BL_Motor.setDuty(motorSpeeds[2]);
+    FR_Motor.setDuty(motorSpeeds[3]);
+    MR_Motor.setDuty(motorSpeeds[4]);
+    BR_Motor.setDuty(motorSpeeds[5]);
 
     leftDriveServo.write(servoTargets[0]);
     leftPanServo.write(servoTargets[1]);
@@ -322,63 +317,90 @@ void manualButtons()
     if(manualButtons == lastManualButtons){
         switch(manualButtons){
             case 1: //FR
-                motorSpeeds[3] = (reverse? -1 : 1);
+                motorSpeeds[3] = (reverse? -0.5 : 0.5);
                 break;
             
             case 2: //FM (MR)
-                motorSpeeds[4] = (reverse? -1 : 1);
+                motorSpeeds[4] = (reverse? -0.5 : 0.5);
                 break;
             
             case 3: //FL
-                motorSpeeds[0] = (reverse? -1 : 1);
+                motorSpeeds[0] = (reverse? -0.5 : 0.5);
                 break;
             
             case 4: //BR
-                motorSpeeds[5] = (reverse? -1 : 1);
+                motorSpeeds[5] = (reverse? -0.5 : 0.5);
                 break;
             
             case 5: //BM (ML)
-                motorSpeeds[1] = (reverse? -1 : 1);
+                motorSpeeds[1] = (reverse? -0.5 : 0.5);
                 break;
             
             case 6: //BL
-                motorSpeeds[2] = (reverse? -1 : 1);
+                motorSpeeds[2] = (reverse? -0.5 : 0.5);
                 break;
 
             case 7: //S1
-                servoTargets[1] += (reverse? -5 : 5);
+                servoTargets[0] += (reverse? -2 : 2);
+                if(servoTargets[0] > 180) servoTargets[0] = 180;
+                if(servoTargets[0] < 0) servoTargets[0] = 0;
+                delay(15);
                 break;
             
             case 8: //S2
-                servoTargets[2] += (reverse? -5 : 5);
+                servoTargets[1] += (reverse? -2 : 2);
+                if(servoTargets[1] > 180) servoTargets[1] = 180;
+                if(servoTargets[1] < 0) servoTargets[1] = 0;
+                delay(15);
                 break;
             
             case 9: //S3
-                servoTargets[3] += (reverse? -5 : 5);
+                servoTargets[2] += (reverse? -2 : 2);
+                if(servoTargets[2] > 180) servoTargets[2] = 180;
+                if(servoTargets[2] < 0) servoTargets[2] = 0;
+                delay(15);
                 break;
             
             case 10: //S4
-                servoTargets[4] += (reverse? -5 : 5);
+                servoTargets[3] += (reverse? -2 : 2);
+                if(servoTargets[3] > 180) servoTargets[3] = 180;
+                if(servoTargets[3] < 0) servoTargets[3] = 0;
+                delay(15);
                 break;
             
             case 11: //S5
-                servoTargets[5] += (reverse? -5 : 5);
+                servoTargets[4] += (reverse? -2 : 2);
+                if(servoTargets[4] > 180) servoTargets[4] = 180;
+                if(servoTargets[4] < 0) servoTargets[4] = 0;
+                delay(15);
                 break;
             
             case 12: //S6
-                servoTargets[6] += (reverse? -5 : 5);
+                servoTargets[5] += (reverse? -2 : 2);
+                if(servoTargets[5] > 180) servoTargets[5] = 180;
+                if(servoTargets[5] < 0) servoTargets[5] = 0;
+                delay(15);
                 break;
             
             case 13: //S7
-                servoTargets[7] += (reverse? -5 : 5);
+                servoTargets[6] += (reverse? -2 : 2);
+                if(servoTargets[6] > 180) servoTargets[6] = 180;
+                if(servoTargets[6] < 0) servoTargets[6] = 0;
+                delay(15);
                 break;
             
             case 14: //S8
-                servoTargets[8] += (reverse? -5 : 5);
+                servoTargets[7] += (reverse? -2 : 2);
+                if(servoTargets[7] > 180) servoTargets[7] = 180;
+                if(servoTargets[7] < 0) servoTargets[7] = 0;
+                delay(15);
                 break;
             
             case 15: //S9
-                servoTargets[9] += (reverse? -5 : 5);
+                servoTargets[8] += (reverse? -2 : 2);
+                if(servoTargets[8] > 180) servoTargets[8] = 180;
+                if(servoTargets[8] < 0) servoTargets[8] = 0;
+                delay(15);
                 break;
 
             default:
@@ -447,7 +469,7 @@ void manualButtons()
 
 void servoStartups()
 {
-    delay(500);
+    delay(1000);
     leftDriveServo.write(SERVO_1_MIN);
     leftPanServo.write(SERVO_2_MIN);
     leftTiltServo.write(SERVO_3_MIN);
@@ -458,7 +480,7 @@ void servoStartups()
     servo8.write(SERVO_8_MIN);
     servo9.write(SERVO_9_MIN);
 
-    delay(500);
+    delay(1000);
     leftDriveServo.write(SERVO_1_MAX);
     leftPanServo.write(SERVO_2_MAX);
     leftTiltServo.write(SERVO_3_MAX);
@@ -469,7 +491,7 @@ void servoStartups()
     servo8.write(SERVO_8_MAX);
     servo9.write(SERVO_9_MAX);
 
-    delay(500);
+    delay(1000);
     leftDriveServo.write(servoTargets[0]);
     leftPanServo.write(servoTargets[1]);
     leftTiltServo.write(servoTargets[2]);
