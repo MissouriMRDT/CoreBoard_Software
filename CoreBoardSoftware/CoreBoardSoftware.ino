@@ -196,6 +196,13 @@ void loop()
 
             for(int i = 0; i < 6; i++) 
                 motorTargets[i] = (i < 3) ? leftSpeed : rightSpeed;
+                
+            FL_Motor.setDuty(motorTargets[0]);
+            ML_Motor.setDuty(motorTargets[1]);
+            BL_Motor.setDuty(motorTargets[2]);
+            FR_Motor.setDuty(motorTargets[3]);
+            MR_Motor.setDuty(motorTargets[4]);
+            BR_Motor.setDuty(motorTargets[5]);
 
             watchdog.begin(EStop, WATCHDOG_TIME);
             break;
@@ -209,6 +216,13 @@ void loop()
 
             for(int i = 0; i < 6; i++) 
                 motorTargets[i] = data[i];
+
+            FL_Motor.setDuty(motorTargets[0]);
+            ML_Motor.setDuty(motorTargets[1]);
+            BL_Motor.setDuty(motorTargets[2]);
+            FR_Motor.setDuty(motorTargets[3]);
+            MR_Motor.setDuty(motorTargets[4]);
+            BR_Motor.setDuty(motorTargets[5]);
 
             watchdog.begin(EStop, WATCHDOG_TIME);
             break;
