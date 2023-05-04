@@ -146,15 +146,20 @@ void loop()
         case RC_GIMBALBOARD_LEFTDRIVEGIMBALINCREMENT_DATA_ID:
         {
             int16_t data = ((int16_t) packet.data[0]);
-            servoTargets[0] += data;
+            leftDriveTarget += data;
+            if(leftDriveTarget > 160) leftDriveTarget = 160;
+            if(leftDriveTarget < 10) leftDriveTarget = 10;
             break;
+
         }
 
         // Increment right drive gimbal by [-180, 180]
         case RC_GIMBALBOARD_RIGHTDRIVEGIMBALINCREMENT_DATA_ID:
         {
             int16_t data = ((int16_t) packet.data[0]);
-            servoTargets[3] += data;
+            rightDriveTarget += data;
+            if(rightDriveTarget > 160) rightDriveTarget = 160;
+            if(rightDriveTarget < 10) rightDriveTarget = 10;
             break;
         }
 
@@ -162,8 +167,12 @@ void loop()
         case RC_GIMBALBOARD_LEFTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            servoTargets[1] += data[0];
-            servoTargets[2] += data[1];
+            leftPanTarget += data[0];
+            if(leftPanTarget > 160) leftPanTarget = 160;
+            if(leftPanTarget < 10) leftPanTarget = 10;
+            leftTiltTarget += data[1];
+            if(leftTiltTarget > 160) leftTiltTarget = 160;
+            if(leftTiltTarget < 10) leftTiltTarget = 10;
             break;
         }
 
@@ -171,8 +180,12 @@ void loop()
         case RC_GIMBALBOARD_RIGHTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            servoTargets[4] += data[0];
-            servoTargets[5] += data[1];
+            rightPanTarget += data[0];
+            if(rightPanTarget > 160) rightPanTarget = 160;
+            if(rightPanTarget < 10) rightPanTarget = 10;
+            rightTiltTarget += data[1];
+            if(rightTiltTarget > 160) rightTiltTarget = 160;
+            if(rightTiltTarget < 10) rightTiltTarget = 10;
             break;
         }
 
@@ -255,15 +268,15 @@ void loop()
     MR_Motor.setDuty(motorSpeeds[4]);
     BR_Motor.setDuty(motorSpeeds[5]);
 
-    leftDriveServo.write(servoTargets[0]);
-    leftPanServo.write(servoTargets[1]);
-    leftTiltServo.write(servoTargets[2]);
-    rightDriveServo.write(servoTargets[3]);
-    rightPanServo.write(servoTargets[4]);
-    rightTiltServo.write(servoTargets[5]);
-    servo7.write(servoTargets[6]);
-    servo8.write(servoTargets[7]);
-    servo9.write(servoTargets[8]);
+
+    leftPanServo.write(leftPanTarget);
+    leftTiltServo.write(leftTiltTarget);
+    rightDriveServo.write(rightDriveTarget);
+    rightPanServo.write(rightPanTarget);
+    rightTiltServo.write(rightTiltTarget);
+    servo7.write(servoTarget7);
+    servo8.write(servoTarget8);
+    servo9.write(servoTarget9);
 
     neoPixel.show();
 
@@ -355,65 +368,65 @@ void manualButtons()
                 break;
 
             case 7: //S1
-                servoTargets[0] += (reverse? -2 : 2);
-                if(servoTargets[0] > 180) servoTargets[0] = 180;
-                if(servoTargets[0] < 0) servoTargets[0] = 0;
+                leftDriveTarget += (reverse? -3 : 3);
+                if(leftDriveTarget > 160) leftDriveTarget = 160;
+                if(leftDriveTarget < 10) leftDriveTarget = 10;
                 delay(15);
                 break;
             
             case 8: //S2
-                servoTargets[1] += (reverse? -2 : 2);
-                if(servoTargets[1] > 180) servoTargets[1] = 180;
-                if(servoTargets[1] < 0) servoTargets[1] = 0;
+                leftPanTarget += (reverse? -3 : 3);
+                if(leftPanTarget > 160) leftPanTarget = 160;
+                if(leftPanTarget < 10) leftPanTarget = 10;
                 delay(15);
                 break;
             
             case 9: //S3
-                servoTargets[2] += (reverse? -2 : 2);
-                if(servoTargets[2] > 180) servoTargets[2] = 180;
-                if(servoTargets[2] < 0) servoTargets[2] = 0;
+                leftTiltTarget += (reverse? -3 : 3);
+                if(leftTiltTarget > 160) leftTiltTarget = 160;
+                if(leftTiltTarget < 10) leftTiltTarget = 10;
                 delay(15);
                 break;
             
             case 10: //S4
-                servoTargets[3] += (reverse? -2 : 2);
-                if(servoTargets[3] > 180) servoTargets[3] = 180;
-                if(servoTargets[3] < 0) servoTargets[3] = 0;
+                rightDriveTarget += (reverse? -3 : 3);
+                if(rightDriveTarget > 160) rightDriveTarget = 160;
+                if(rightDriveTarget < 10) rightDriveTarget = 10;
                 delay(15);
                 break;
             
             case 11: //S5
-                servoTargets[4] += (reverse? -2 : 2);
-                if(servoTargets[4] > 180) servoTargets[4] = 180;
-                if(servoTargets[4] < 0) servoTargets[4] = 0;
+                rightPanTarget += (reverse? -3 : 3);
+                if(rightPanTarget > 160) rightPanTarget = 160;
+                if(rightPanTarget < 10) rightPanTarget = 10;
                 delay(15);
                 break;
             
             case 12: //S6
-                servoTargets[5] += (reverse? -2 : 2);
-                if(servoTargets[5] > 180) servoTargets[5] = 180;
-                if(servoTargets[5] < 0) servoTargets[5] = 0;
+                rightTiltTarget += (reverse? -3 : 3);
+                if(rightTiltTarget > 160) rightTiltTarget = 160;
+                if(rightTiltTarget < 10) rightTiltTarget = 10;
                 delay(15);
                 break;
             
             case 13: //S7
-                servoTargets[6] += (reverse? -2 : 2);
-                if(servoTargets[6] > 180) servoTargets[6] = 180;
-                if(servoTargets[6] < 0) servoTargets[6] = 0;
+                servoTarget7 += (reverse? -3 : 3);
+                if(servoTarget7 > 160) servoTarget7 = 160;
+                if(servoTarget7 < 10) servoTarget7 = 10;
                 delay(15);
                 break;
             
             case 14: //S8
-                servoTargets[7] += (reverse? -2 : 2);
-                if(servoTargets[7] > 180) servoTargets[7] = 180;
-                if(servoTargets[7] < 0) servoTargets[7] = 0;
+                servoTarget8 += (reverse? -3 : 3);
+                if(servoTarget8 > 160) servoTarget8 = 160;
+                if(servoTarget8 < 10) servoTarget8 = 10;
                 delay(15);
                 break;
             
             case 15: //S9
-                servoTargets[8] += (reverse? -2 : 2);
-                if(servoTargets[8] > 180) servoTargets[8] = 180;
-                if(servoTargets[8] < 0) servoTargets[8] = 0;
+                servoTarget9 += (reverse? -3 : 3);
+                if(servoTarget9 > 160) servoTarget9 = 160;
+                if(servoTarget9 < 10) servoTarget9 = 10;
                 delay(15);
                 break;
 
@@ -506,15 +519,15 @@ void servoStartups()
     servo9.write(SERVO_9_MAX);
 
     delay(1000);
-    leftDriveServo.write(servoTargets[0]);
-    leftPanServo.write(servoTargets[1]);
-    leftTiltServo.write(servoTargets[2]);
-    rightDriveServo.write(servoTargets[3]);
-    rightPanServo.write(servoTargets[4]);
-    rightTiltServo.write(servoTargets[5]);
-    servo7.write(servoTargets[6]);
-    servo8.write(servoTargets[7]);
-    servo9.write(servoTargets[8]);
+    leftDriveServo.write(leftDriveTarget);
+    leftPanServo.write(leftPanTarget);
+    leftTiltServo.write(leftTiltTarget);
+    rightDriveServo.write(rightDriveTarget);
+    rightPanServo.write(rightPanTarget);
+    rightTiltServo.write(rightTiltTarget);
+    servo7.write(servoTarget7);
+    servo8.write(servoTarget8);
+    servo9.write(servoTarget9);
 }
 
 void EStop() 

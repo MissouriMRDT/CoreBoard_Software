@@ -75,7 +75,15 @@ Servo rightDriveServo, rightPanServo, rightTiltServo;
 Servo servo7, servo8, servo9;
 
 //All servos are in order of leftDrive, leftPan, leftTilt, rightDrive, rightPan, rightTilt, 7, 8, 9
-int16_t servoTargets[9] = {85, 85, 85, 85, 85, 85, 85, 85, 85};
+int16_t leftDriveTarget = 85;
+int16_t leftPanTarget = 85;
+int16_t leftTiltTarget = 85;
+int16_t rightDriveTarget = 85;
+int16_t rightPanTarget = 85;
+int16_t rightTiltTarget = 85;
+int16_t servoTarget7 = 85;
+int16_t servoTarget8 = 85;
+int16_t servoTarget9 = 85;
 
 //Buttons Declaration
 uint8_t lastManualButtons = 0;
