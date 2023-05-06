@@ -52,7 +52,7 @@ void setup() {
     //Start RoveComm
     RoveComm.begin(RC_COREBOARD_FIRSTOCTET, RC_COREBOARD_SECONDOCTET, RC_COREBOARD_THIRDOCTET, RC_COREBOARD_FOURTHOCTET, &TCPServer);
  
-    //telemetry.begin(Telemetry, TELEMETRY_UPDATE);
+    telemetry.begin(Telemetry, TELEMETRY_UPDATE);
 
     servoStartups();
     
