@@ -19,8 +19,8 @@
 #define DRIVE_MAX_RAMP          0.005
 
 #define SERVO_1_MIN             10    //leftDrive
-#define SERVO_2_MIN             10    //leftPan
-#define SERVO_3_MIN             10    //leftTilt
+#define SERVO_2_MIN             50    //leftPan
+#define SERVO_3_MIN             20    //leftTilt
 #define SERVO_4_MIN             10    //rightDrive
 #define SERVO_5_MIN             10    //rightPan
 #define SERVO_6_MIN             10    //rightTilt
@@ -29,8 +29,8 @@
 #define SERVO_9_MIN             10
 
 #define SERVO_1_MAX             160   //leftDrive
-#define SERVO_2_MAX             160   //leftPan
-#define SERVO_3_MAX             160   //leftTilt
+#define SERVO_2_MAX             130   //leftPan
+#define SERVO_3_MAX             115   //leftTilt
 #define SERVO_4_MAX             160   //rightDrive
 #define SERVO_5_MAX             160   //rightPan
 #define SERVO_6_MAX             160   //rightTilt
@@ -76,8 +76,8 @@ Servo servo7, servo8, servo9;
 
 //All servos are in order of leftDrive, leftPan, leftTilt, rightDrive, rightPan, rightTilt, 7, 8, 9
 int16_t leftDriveTarget = 85;
-int16_t leftPanTarget = 85;
-int16_t leftTiltTarget = 85;
+int16_t leftPanTarget = 90;
+int16_t leftTiltTarget = 65;
 int16_t rightDriveTarget = 85;
 int16_t rightPanTarget = 85;
 int16_t rightTiltTarget = 85;
@@ -91,5 +91,8 @@ uint8_t lastManualButtons = 0;
 //Estop Declaration
 void EStop();
 void Telemetry();
+
+void servoStartups();
+void manualButtons();
 
 #endif

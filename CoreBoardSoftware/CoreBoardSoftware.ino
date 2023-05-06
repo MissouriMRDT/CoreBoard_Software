@@ -52,7 +52,7 @@ void setup() {
     //Start RoveComm
     RoveComm.begin(RC_COREBOARD_FIRSTOCTET, RC_COREBOARD_SECONDOCTET, RC_COREBOARD_THIRDOCTET, RC_COREBOARD_FOURTHOCTET, &TCPServer);
  
-    telemetry.begin(Telemetry, TELEMETRY_UPDATE);
+    //telemetry.begin(Telemetry, TELEMETRY_UPDATE);
 
     servoStartups();
     
@@ -71,15 +71,16 @@ void loop()
     //Multimedia Packets
     switch(packet.data_id) {
         //[R, G, B] -> [(0 - 255), (0 - 255), (0 - 255)]
-        case RC_MULTIMEDIABOARD_LEDRGB_DATA_ID:
+        case RC_COREBOARD_LEDRGB_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
             neoPixel.fill(neoPixel.Color(data[0], data[1], data[2]));
+            neoPixel.show();
             break;
         }
 
         //Flash Pattern selected by data
-        case RC_MULTIMEDIABOARD_LEDPATTERNS_DATA_ID:
+        case RC_COREBOARD_LEDPATTERNS_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
             switch(data[0])
@@ -91,17 +92,19 @@ void loop()
         }
 
         //[Teleop, Autonomy, Reached Goal] -> Color
-        case RC_MULTIMEDIABOARD_STATEDISPLAY_DATA_ID:
+        case RC_COREBOARD_STATEDISPLAY_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
             switch (data[0])
             {
                 case TELEOP:
                     neoPixel.fill(neoPixel.Color(0, 0, 255));
+                    neoPixel.show();
                     break;
                 
                 case AUTONOMY:
                     neoPixel.fill(neoPixel.Color(255, 0, 0));
+                    neoPixel.show();
                     break;
 
                 case REACHED_GOAL:
@@ -123,11 +126,12 @@ void loop()
         }
 
         //Set Brightness (0, 255)
-        case RC_MULTIMEDIABOARD_BRIGHTNESS_DATA_ID:
+        case RC_COREBOARD_BRIGHTNESS_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
             if(data[0] >= MAX_BRIGHTNESS) data[0] = MAX_BRIGHTNESS;
             neoPixel.setBrightness(data[0]);
+            neoPixel.show();
             break;
         }
 
@@ -143,49 +147,49 @@ void loop()
     switch (packet.data_id) {
 
         // Increment left drive gimbal by [-180, 180]
-        case RC_GIMBALBOARD_LEFTDRIVEGIMBALINCREMENT_DATA_ID:
+        case RC_COREBOARD_LEFTDRIVEGIMBALINCREMENT_DATA_ID:
         {
             int16_t data = ((int16_t) packet.data[0]);
             leftDriveTarget += data;
-            if(leftDriveTarget > 160) leftDriveTarget = 160;
-            if(leftDriveTarget < 10) leftDriveTarget = 10;
+            if(leftDriveTarget > SERVO_1_MAX) leftDriveTarget = SERVO_1_MAX;
+            if(leftDriveTarget < SERVO_1_MIN) leftDriveTarget = SERVO_1_MIN;
             break;
 
         }
 
         // Increment right drive gimbal by [-180, 180]
-        case RC_GIMBALBOARD_RIGHTDRIVEGIMBALINCREMENT_DATA_ID:
+        case RC_COREBOARD_RIGHTDRIVEGIMBALINCREMENT_DATA_ID:
         {
             int16_t data = ((int16_t) packet.data[0]);
             rightDriveTarget += data;
-            if(rightDriveTarget > 160) rightDriveTarget = 160;
-            if(rightDriveTarget < 10) rightDriveTarget = 10;
+            if(rightDriveTarget > SERVO_4_MAX) rightDriveTarget = SERVO_4_MAX;
+            if(rightDriveTarget < SERVO_4_MIN) rightDriveTarget = SERVO_4_MIN;
             break;
         }
 
         // Increment left pan and tilt gimbals by [-180, 180]
-        case RC_GIMBALBOARD_LEFTMAINGIMBALINCREMENT_DATA_ID:
+        case RC_COREBOARD_LEFTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
             leftPanTarget += data[0];
-            if(leftPanTarget > 160) leftPanTarget = 160;
-            if(leftPanTarget < 10) leftPanTarget = 10;
+            if(leftPanTarget > SERVO_2_MAX) leftPanTarget = SERVO_2_MAX;
+            if(leftPanTarget < SERVO_2_MIN) leftPanTarget = SERVO_2_MIN;
             leftTiltTarget += data[1];
-            if(leftTiltTarget > 160) leftTiltTarget = 160;
-            if(leftTiltTarget < 10) leftTiltTarget = 10;
+            if(leftTiltTarget > SERVO_3_MAX) leftTiltTarget = SERVO_3_MAX;
+            if(leftTiltTarget < SERVO_3_MIN) leftTiltTarget = SERVO_3_MIN;
             break;
         }
 
         // Increment right pan and tilt gimbals by [-180, 180]
-        case RC_GIMBALBOARD_RIGHTMAINGIMBALINCREMENT_DATA_ID:
+        case RC_COREBOARD_RIGHTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
             rightPanTarget += data[0];
-            if(rightPanTarget > 160) rightPanTarget = 160;
-            if(rightPanTarget < 10) rightPanTarget = 10;
+            if(rightPanTarget > SERVO_5_MAX) rightPanTarget = SERVO_5_MAX;
+            if(rightPanTarget < SERVO_5_MIN) rightPanTarget = SERVO_5_MIN;
             rightTiltTarget += data[1];
-            if(rightTiltTarget > 160) rightTiltTarget = 160;
-            if(rightTiltTarget < 10) rightTiltTarget = 10;
+            if(rightTiltTarget > SERVO_6_MAX) rightTiltTarget = SERVO_6_MAX;
+            if(rightTiltTarget < SERVO_6_MIN) rightTiltTarget = SERVO_6_MIN;
             break;
         }
 
@@ -199,7 +203,7 @@ void loop()
     switch(packet.data_id) {
         
         //Set All Left and All Right Motors to a DutyCycle [-1, 1]
-        case RC_DRIVEBOARD_DRIVELEFTRIGHT_DATA_ID:
+        case RC_COREBOARD_DRIVELEFTRIGHT_DATA_ID:
         {
             float* data;
             data = (float*)packet.data;
@@ -222,7 +226,7 @@ void loop()
         }
 
         //Set All individual Motors to a DutyCycle [-1, 1]
-        case RC_DRIVEBOARD_DRIVEINDIVIDUAL_DATA_ID:
+        case RC_COREBOARD_DRIVEINDIVIDUAL_DATA_ID:
         {
             float* data;
             data = (float*)packet.data;
@@ -259,7 +263,7 @@ void loop()
             motorSpeeds[i] = motorTargets[i];
     }
 
-    manualButtons();
+    //manualButtons();
 
     FL_Motor.setDuty(motorSpeeds[0]);
     ML_Motor.setDuty(motorSpeeds[1]);
@@ -267,7 +271,6 @@ void loop()
     FR_Motor.setDuty(motorSpeeds[3]);
     MR_Motor.setDuty(motorSpeeds[4]);
     BR_Motor.setDuty(motorSpeeds[5]);
-
 
     leftPanServo.write(leftPanTarget);
     leftTiltServo.write(leftTiltTarget);
@@ -278,9 +281,8 @@ void loop()
     servo8.write(servoTarget8);
     servo9.write(servoTarget9);
 
-    neoPixel.show();
-
     lastRampTime = millis();
+    //delay(500);
 }
 
 
@@ -331,7 +333,7 @@ void Telemetry()
         motorCurrent[5] = 0;
     }
 
-    RoveComm.write(RC_DRIVEBOARD_DRIVESPEEDS_DATA_ID, RC_DRIVEBOARD_DRIVESPEEDS_DATA_COUNT, motorCurrent);
+    RoveComm.write(RC_COREBOARD_DRIVESPEEDS_DATA_ID, RC_COREBOARD_DRIVESPEEDS_DATA_COUNT, motorCurrent);
 }
 
 
@@ -376,15 +378,15 @@ void manualButtons()
             
             case 8: //S2
                 leftPanTarget += (reverse? -3 : 3);
-                if(leftPanTarget > 160) leftPanTarget = 160;
-                if(leftPanTarget < 10) leftPanTarget = 10;
+                if(leftPanTarget > SERVO_2_MAX) leftPanTarget = SERVO_2_MAX;
+                if(leftPanTarget < SERVO_2_MIN) leftPanTarget = SERVO_2_MIN;
                 delay(15);
                 break;
             
             case 9: //S3
                 leftTiltTarget += (reverse? -3 : 3);
-                if(leftTiltTarget > 160) leftTiltTarget = 160;
-                if(leftTiltTarget < 10) leftTiltTarget = 10;
+                if(leftTiltTarget > SERVO_3_MAX) leftTiltTarget = SERVO_3_MAX;
+                if(leftTiltTarget < SERVO_3_MIN) leftTiltTarget = SERVO_3_MIN;
                 delay(15);
                 break;
             
@@ -496,7 +498,6 @@ void manualButtons()
 
 void servoStartups()
 {
-    delay(1000);
     leftDriveServo.write(SERVO_1_MIN);
     leftPanServo.write(SERVO_2_MIN);
     leftTiltServo.write(SERVO_3_MIN);
@@ -507,7 +508,7 @@ void servoStartups()
     servo8.write(SERVO_8_MIN);
     servo9.write(SERVO_9_MIN);
 
-    delay(1000);
+    delay(2000);
     leftDriveServo.write(SERVO_1_MAX);
     leftPanServo.write(SERVO_2_MAX);
     leftTiltServo.write(SERVO_3_MAX);
@@ -518,7 +519,8 @@ void servoStartups()
     servo8.write(SERVO_8_MAX);
     servo9.write(SERVO_9_MAX);
 
-    delay(1000);
+    // the below is necessary even tho we send these during every loop and i have no idea why
+    delay(2000);
     leftDriveServo.write(leftDriveTarget);
     leftPanServo.write(leftPanTarget);
     leftTiltServo.write(leftTiltTarget);
@@ -528,6 +530,7 @@ void servoStartups()
     servo7.write(servoTarget7);
     servo8.write(servoTarget8);
     servo9.write(servoTarget9);
+    delay(50);
 }
 
 void EStop() 
