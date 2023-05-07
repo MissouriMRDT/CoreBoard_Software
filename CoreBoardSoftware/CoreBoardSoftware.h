@@ -4,8 +4,6 @@
 #include "PinAssignments.h"
 
 #include <RoveComm.h>
-#include <RoveCommManifest.h>
-#include <RoveCommPacket.h>
 #include <VescUart.h>
 
 #include <Servo.h>
@@ -51,9 +49,7 @@ EthernetServer TCPServer(RC_ROVECOMM_ETHERNET_TCP_PORT);
 RoveCommEthernet RoveComm;
 rovecomm_packet packet;
 
-uint32_t lastUpdateTime;
-uint32_t lastRampTime;
-uint32_t maxRamp;
+uint32_t lastTimestamp;
 
 Adafruit_NeoPixel neoPixel = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL);
 
@@ -68,6 +64,7 @@ VescUart BR_Motor;
 //All wheels are in order of FL, ML, BL, FR, MR, BR
 float motorTargets[6] = {0, 0, 0, 0, 0, 0};
 float motorSpeeds[6] = {0, 0, 0, 0, 0, 0};
+int16_t motorCurrent[6] = {0, 0, 0, 0, 0, 0};
 
 //Servo Declarations - Three 9-pin Connectors each with Three Servos
 Servo leftDriveServo, leftPanServo, leftTiltServo;
@@ -88,10 +85,8 @@ int16_t servoTarget9 = 85;
 //Buttons Declaration
 uint8_t lastManualButtons = 0;
 
-//Estop Declaration
-void EStop();
-void Telemetry();
-
+// Methods
+void estop();
 void servoStartups();
 void manualButtons();
 
