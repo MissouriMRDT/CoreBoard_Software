@@ -6,15 +6,15 @@ void setup() {
     Serial.println("CoreBoard Setup");
 
     //Attach Servos to Pins
-    leftDriveServo.attach(SERVO_1);
-    leftPanServo.attach(SERVO_2);
-    leftTiltServo.attach(SERVO_3);
-    rightDriveServo.attach(SERVO_4);
-    rightPanServo.attach(SERVO_5);
-    rightTiltServo.attach(SERVO_6);
-    servo7.attach(SERVO_7);
-    servo8.attach(SERVO_8);
-    servo9.attach(SERVO_9);
+    leftDriveServo.attach(SERVO_1, 500, 2500);
+    leftPanServo.attach(SERVO_2, 500, 2500);
+    leftTiltServo.attach(SERVO_3, 500, 2500);
+    rightDriveServo.attach(SERVO_4, 500, 2500);
+    rightPanServo.attach(SERVO_5, 500, 2500);
+    rightTiltServo.attach(SERVO_6, 500, 2500);
+    servo7.attach(SERVO_7, 500, 2500);
+    servo8.attach(SERVO_8, 500, 2500);
+    servo9.attach(SERVO_9, 500, 2500);
 
     
     //Initialize VESC serial ports
@@ -144,8 +144,8 @@ void loop()
         // Increment left drive gimbal by [-180, 180]
         case RC_COREBOARD_LEFTDRIVEGIMBALINCREMENT_DATA_ID:
         {
-            int16_t data = ((int16_t) packet.data[0]);
-            leftDriveTarget += data;
+            int16_t* data = (int16_t*) packet.data;
+            leftDriveTarget += data[0];
             if(leftDriveTarget > SERVO_1_MAX) leftDriveTarget = SERVO_1_MAX;
             if(leftDriveTarget < SERVO_1_MIN) leftDriveTarget = SERVO_1_MIN;
             break;
@@ -155,8 +155,8 @@ void loop()
         // Increment right drive gimbal by [-180, 180]
         case RC_COREBOARD_RIGHTDRIVEGIMBALINCREMENT_DATA_ID:
         {
-            int16_t data = ((int16_t) packet.data[0]);
-            rightDriveTarget += data;
+            int16_t* data = (int16_t*) packet.data;
+            rightDriveTarget += data[0];
             if(rightDriveTarget > SERVO_4_MAX) rightDriveTarget = SERVO_4_MAX;
             if(rightDriveTarget < SERVO_4_MIN) rightDriveTarget = SERVO_4_MIN;
             break;
@@ -253,6 +253,7 @@ void loop()
     MR_Motor.setDuty(motorSpeeds[4]);
     BR_Motor.setDuty(motorSpeeds[5]);
 
+    leftDriveServo.write(leftDriveTarget);
     leftPanServo.write(leftPanTarget);
     leftTiltServo.write(leftTiltTarget);
     rightDriveServo.write(rightDriveTarget);
