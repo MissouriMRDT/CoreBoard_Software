@@ -16,25 +16,21 @@
 #define DRIVE_MAX_RPM           30000
 #define DRIVE_MAX_RAMP          0.005
 
-#define SERVO_1_MIN             10    //leftDrive
-#define SERVO_2_MIN             50    //leftPan
-#define SERVO_3_MIN             20    //leftTilt
-#define SERVO_4_MIN             10    //rightDrive
-#define SERVO_5_MIN             10    //rightPan
-#define SERVO_6_MIN             10    //rightTilt
-#define SERVO_7_MIN             10
-#define SERVO_8_MIN             10
-#define SERVO_9_MIN             10
+#define LEFT_DRIVE_MIN          0
+#define LEFT_PAN_MIN            0
+#define LEFT_TILT_MIN           0
+#define RIGHT_DRIVE_MIN         0
+#define RIGHT_PAN_MIN           0
+#define RIGHT_TILT_MIN          0
+#define REAR_MIN                0
 
-#define SERVO_1_MAX             160   //leftDrive
-#define SERVO_2_MAX             130   //leftPan
-#define SERVO_3_MAX             115   //leftTilt
-#define SERVO_4_MAX             160   //rightDrive
-#define SERVO_5_MAX             160   //rightPan
-#define SERVO_6_MAX             160   //rightTilt
-#define SERVO_7_MAX             160
-#define SERVO_8_MAX             160
-#define SERVO_9_MAX             160
+#define LEFT_DRIVE_MAX          180
+#define LEFT_PAN_MAX            180
+#define LEFT_TILT_MAX           180
+#define RIGHT_DRIVE_MAX         180
+#define RIGHT_PAN_MAX           180
+#define RIGHT_TILT_MAX          180
+#define REAR_MAX                180
 
 #define TELEMETRY_UPDATE        150000
 IntervalTimer telemetry;
@@ -69,18 +65,18 @@ int16_t motorCurrent[6] = {0, 0, 0, 0, 0, 0};
 //Servo Declarations - Three 9-pin Connectors each with Three Servos
 Servo leftDriveServo, leftPanServo, leftTiltServo;
 Servo rightDriveServo, rightPanServo, rightTiltServo;
-Servo servo7, servo8, servo9;
+Servo rearServo, servo8, servo9;
 
 //All servos are in order of leftDrive, leftPan, leftTilt, rightDrive, rightPan, rightTilt, 7, 8, 9
-int16_t leftDriveTarget = 85;
+int16_t leftDriveTarget = 90;
 int16_t leftPanTarget = 90;
-int16_t leftTiltTarget = 65;
-int16_t rightDriveTarget = 85;
-int16_t rightPanTarget = 85;
-int16_t rightTiltTarget = 85;
-int16_t servoTarget7 = 85;
-int16_t servoTarget8 = 85;
-int16_t servoTarget9 = 85;
+int16_t leftTiltTarget = 90;
+int16_t rightDriveTarget = 90;
+int16_t rightPanTarget = 90;
+int16_t rightTiltTarget = 90;
+int16_t rearTarget = 90;
+int16_t servoTarget8 = 90;
+int16_t servoTarget9 = 90;
 
 //Buttons Declaration
 uint8_t lastManualButtons = 0;
