@@ -22,7 +22,7 @@
 #define RIGHT_DRIVE_MIN         0
 #define RIGHT_PAN_MIN           0
 #define RIGHT_TILT_MIN          0
-#define REAR_MIN                0
+#define BACK_DRIVE_MIN                0
 
 #define LEFT_DRIVE_MAX          180
 #define LEFT_PAN_MAX            180
@@ -30,7 +30,7 @@
 #define RIGHT_DRIVE_MAX         180
 #define RIGHT_PAN_MAX           180
 #define RIGHT_TILT_MAX          180
-#define REAR_MAX                180
+#define BACK_DRIVE_MAX                180
 
 #define TELEMETRY_UPDATE        150000
 IntervalTimer telemetry;
@@ -65,7 +65,7 @@ int16_t motorCurrent[6] = {0, 0, 0, 0, 0, 0};
 //Servo Declarations - Three 9-pin Connectors each with Three Servos
 Servo leftDriveServo, leftPanServo, leftTiltServo;
 Servo rightDriveServo, rightPanServo, rightTiltServo;
-Servo rearServo, servo8, servo9;
+Servo backDriveServo, servo8, servo9;
 
 //All servos are in order of leftDrive, leftPan, leftTilt, rightDrive, rightPan, rightTilt, 7, 8, 9
 int16_t leftDriveTarget = 90;
@@ -74,7 +74,7 @@ int16_t leftTiltTarget = 90;
 int16_t rightDriveTarget = 90;
 int16_t rightPanTarget = 90;
 int16_t rightTiltTarget = 90;
-int16_t rearTarget = 90;
+int16_t backDriveTarget = 90;
 int16_t servoTarget8 = 90;
 int16_t servoTarget9 = 90;
 
