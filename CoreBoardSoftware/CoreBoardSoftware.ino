@@ -56,7 +56,7 @@ void setup() {
     Serial.println("Complete.");
 
     servoStartups();
-    watchdog.begin(estop, WATCHDOG_TIME);
+    feedWatchdog();
     lastTimestamp = millis();
 }
 
@@ -217,7 +217,7 @@ void loop()
             for(int i = 0; i < 6; i++) 
                 motorTargets[i] = (i < 3) ? leftSpeed : rightSpeed;
 
-            watchdog.begin(estop, WATCHDOG_TIME);
+            feedWatchdog();
             break;
         }
 
@@ -230,7 +230,15 @@ void loop()
             for(int i = 0; i < 6; i++) 
                 motorTargets[i] = data[i];
 
-            watchdog.begin(estop, WATCHDOG_TIME);
+            feedWatchdog();
+            break;
+        }
+
+        case RC_COREBOARD_SETWATCHDOGMODE_DATA_ID:
+        {
+            uint8_t* data = (uint8_t*) packet.data;
+
+            watchdogMode = data[0];
             break;
         }
 
@@ -418,11 +426,13 @@ void servoStartups()
 
 void estop() 
 {    
-    if(!watchdogOverride) 
-    {
-        for(int i = 0; i < 6; i++) 
+    if(!watchdogOverride) {
+        for(int i = 0; i < 6; i++) {
             motorTargets[i] = 0;
-
-        watchdog.begin(estop, WATCHDOG_TIME);
+        }
     }   
+}
+
+void feedWatchdog() {
+    watchdog.begin(estop, (watchdogMode? WATCHDOG_TIMEOUT_AUTONOMY : WATCHDOG_TIMEOUT_TELEOP));
 }

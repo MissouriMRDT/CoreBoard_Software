@@ -22,7 +22,7 @@
 #define RIGHT_DRIVE_MIN         0
 #define RIGHT_PAN_MIN           0
 #define RIGHT_TILT_MIN          0
-#define BACK_DRIVE_MIN                0
+#define BACK_DRIVE_MIN          0
 
 #define LEFT_DRIVE_MAX          180
 #define LEFT_PAN_MAX            180
@@ -30,14 +30,16 @@
 #define RIGHT_DRIVE_MAX         180
 #define RIGHT_PAN_MAX           180
 #define RIGHT_TILT_MAX          180
-#define BACK_DRIVE_MAX                180
+#define BACK_DRIVE_MAX          180
 
 #define TELEMETRY_UPDATE        150000
 IntervalTimer telemetry;
 
-#define WATCHDOG_TIME           300000
+#define WATCHDOG_TIMEOUT_TELEOP         300000
+#define WATCHDOG_TIMEOUT_AUTONOMY       1500000
 IntervalTimer watchdog;
 bool watchdogOverride = false;
+uint8_t watchdogMode = 0; // 0: Teleop, 1: Autonomy
 
 
 //Rovecomm Declaration
@@ -67,7 +69,7 @@ Servo leftDriveServo, leftPanServo, leftTiltServo;
 Servo rightDriveServo, rightPanServo, rightTiltServo;
 Servo backDriveServo, servo8, servo9;
 
-//All servos are in order of leftDrive, leftPan, leftTilt, rightDrive, rightPan, rightTilt, 7, 8, 9
+//All servos are in order of leftDrive, leftPan, leftTilt, rightDrive, rightPan, rightTilt, backDrive, 8, 9
 int16_t leftDriveTarget = 90;
 int16_t leftPanTarget = 90;
 int16_t leftTiltTarget = 90;
