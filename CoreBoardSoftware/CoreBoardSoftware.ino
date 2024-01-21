@@ -40,12 +40,6 @@ void setup() {
     pinMode(B_ENC_2, INPUT);
     pinMode(B_ENC_3, INPUT);
 
-    //Initialize LED
-    pinMode(LED_TX, OUTPUT);
-    pinMode(LED_RX, OUTPUT);
-    digitalWrite(LED_TX, LOW);
-    digitalWrite(LED_RX, LOW);
-
     //Initialize NeoPixel
     neoPixel.begin();
     neoPixel.setBrightness(MAX_BRIGHTNESS);
