@@ -275,7 +275,6 @@ void loop()
     servo8.write(servoTarget8);
     servo9.write(servoTarget9);
 
-
     lastTimestamp = timestamp;
 }
 
@@ -286,34 +285,34 @@ void manualButtons()
     uint8_t manualButtons = (digitalRead(B_ENC_3)<<3) | (digitalRead(B_ENC_2)<<2) | (digitalRead(B_ENC_1)<<1) | (digitalRead(B_ENC_0)<<0);
 
     // FL
-    if (manualButtons == 3) motorSpeeds[0] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 3) motorSpeeds[0] = 0;
+    if (manualButtons == 15) motorSpeeds[0] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == 15) motorSpeeds[0] = 0;
     
     // ML
-    if (manualButtons == 5) motorSpeeds[1] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 5) motorSpeeds[1] = 0;
+    if (manualButtons == 1) motorSpeeds[1] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == 1) motorSpeeds[1] = 0;
     
     // BL
-    if (manualButtons == 6) motorSpeeds[2] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 6) motorSpeeds[2] = 0;
+    if (manualButtons == 2) motorSpeeds[2] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == 2) motorSpeeds[2] = 0;
 
     // FR
-    if (manualButtons == 1) motorSpeeds[3] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 1) motorSpeeds[3] = 0;
+    if (manualButtons == 12) motorSpeeds[3] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == 12) motorSpeeds[3] = 0;
 
     // MR
-    if (manualButtons == 2) motorSpeeds[4] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 2) motorSpeeds[4] = 0;
+    if (manualButtons == 13) motorSpeeds[4] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == 13) motorSpeeds[4] = 0;
 
     // BR
-    if (manualButtons == 4) motorSpeeds[5] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 4) motorSpeeds[5] = 0;
+    if (manualButtons == 14) motorSpeeds[5] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == 14) motorSpeeds[5] = 0;
 
 
     // Servos
     switch(manualButtons)
     {
-        case 7: //S1
+        case 11: //S1
             leftDriveTarget += (reverse? -1 : 1);
             if(leftDriveTarget > LEFT_DRIVE_MAX) leftDriveTarget = LEFT_DRIVE_MAX;
             if(leftDriveTarget < LEFT_DRIVE_MIN) leftDriveTarget = LEFT_DRIVE_MIN;
@@ -327,7 +326,7 @@ void manualButtons()
             delay(15);
             break;
         
-        case 9: //S3
+        case 5: //S3
             leftTiltTarget += (reverse? -1 : 1);
             if(leftTiltTarget > LEFT_TILT_MAX) leftTiltTarget = LEFT_TILT_MAX;
             if(leftTiltTarget < LEFT_TILT_MIN) leftTiltTarget = LEFT_TILT_MIN;
@@ -341,42 +340,39 @@ void manualButtons()
             delay(15);
             break;
         
-        case 11: //S5
+        case 7: //S5
             rightPanTarget += (reverse? -1 : 1);
             if(rightPanTarget > RIGHT_PAN_MAX) rightPanTarget = RIGHT_PAN_MAX;
             if(rightPanTarget < RIGHT_PAN_MIN) rightPanTarget = RIGHT_PAN_MIN;
             delay(15);
             break;
         
-        case 12: //S6
+        case 4: //S6
             rightTiltTarget += (reverse? -1 : 1);
             if(rightTiltTarget > RIGHT_TILT_MAX) rightTiltTarget = RIGHT_TILT_MAX;
             if(rightTiltTarget < RIGHT_TILT_MIN) rightTiltTarget = RIGHT_TILT_MIN;
             delay(15);
             break;
         
-        case 13: //S7
+        case 9: //S7
             backDriveTarget += (reverse? -1 : 1);
             if(backDriveTarget > BACK_DRIVE_MAX) backDriveTarget = BACK_DRIVE_MAX;
             if(backDriveTarget < BACK_DRIVE_MIN) backDriveTarget = BACK_DRIVE_MIN;
             delay(15);
             break;
         
-        case 14: //S8
+        case 6: //S8
             servoTarget8 += (reverse? -1 : 1);
             if(servoTarget8 > 160) servoTarget8 = 160;
             if(servoTarget8 < 10) servoTarget8 = 10;
             delay(15);
             break;
         
-        case 15: //S9
+        case 3: //S9
             servoTarget9 += (reverse? -1 : 1);
             if(servoTarget9 > 160) servoTarget9 = 160;
             if(servoTarget9 < 10) servoTarget9 = 10;
             delay(15);
-            break;
-
-        default:
             break;
     }
 
