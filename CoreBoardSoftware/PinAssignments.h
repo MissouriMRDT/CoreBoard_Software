@@ -39,14 +39,14 @@
 
 //Button Pins
 #define B_ENC_0         23
-#define B_ENC_1         21
+#define B_ENC_1         22
 #define B_ENC_2         41
 #define B_ENC_3         33
 
 #define REVERSE         27
 
 //Accelerometer Pins
-#define AccSCL          19
-#define ACCSDA          18
+#define ACC_SCL          19
+#define ACC_SDA          18
 
 #endif
