@@ -16,12 +16,12 @@
 #define BR_TX           14
 #define BR_RX           15
 
-#define FL_SERIAL       Serial3
-#define ML_SERIAL       Serial7
-#define BL_SERIAL       Serial6
-#define FR_SERIAL       Serial1
-#define MR_SERIAL       Serial5
-#define BR_SERIAL       Serial4
+#define FL_SERIAL       Serial7
+#define ML_SERIAL       Serial6
+#define BL_SERIAL       Serial8
+#define FR_SERIAL       Serial5
+#define MR_SERIAL       Serial4
+#define BR_SERIAL       Serial3
 
 //Servo Pins
 #define SERVO_1         0
