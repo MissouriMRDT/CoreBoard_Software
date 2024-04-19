@@ -130,8 +130,6 @@ void loop()
 
     }
 
-
-
     //Gimbal Packets
     switch (packet.data_id) {
 
@@ -139,9 +137,7 @@ void loop()
         case RC_COREBOARD_LEFTDRIVEGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            leftDriveTarget += data[0];
-            if(leftDriveTarget > LEFT_DRIVE_MAX) leftDriveTarget = LEFT_DRIVE_MAX;
-            if(leftDriveTarget < LEFT_DRIVE_MIN) leftDriveTarget = LEFT_DRIVE_MIN;
+            leftDriveServo.target += data[0];
             break;
 
         }
@@ -150,9 +146,7 @@ void loop()
         case RC_COREBOARD_RIGHTDRIVEGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            rightDriveTarget += data[0];
-            if(rightDriveTarget > RIGHT_DRIVE_MAX) rightDriveTarget = RIGHT_DRIVE_MAX;
-            if(rightDriveTarget < RIGHT_DRIVE_MIN) rightDriveTarget = RIGHT_DRIVE_MIN;
+            rightDriveServo.target += data[0];
             break;
         }
 
@@ -160,9 +154,7 @@ void loop()
         case RC_COREBOARD_BACKDRIVEGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            backDriveTarget += data[0];
-            if(backDriveTarget > BACK_DRIVE_MAX) backDriveTarget = BACK_DRIVE_MAX;
-            if(backDriveTarget < BACK_DRIVE_MIN) backDriveTarget = BACK_DRIVE_MIN;
+            backDriveServo.target += data[0];
             break;
         }
 
@@ -170,12 +162,8 @@ void loop()
         case RC_COREBOARD_LEFTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            leftPanTarget += data[0];
-            if(leftPanTarget > LEFT_PAN_MAX) leftPanTarget = LEFT_PAN_MAX;
-            if(leftPanTarget < LEFT_PAN_MIN) leftPanTarget = LEFT_PAN_MIN;
-            leftTiltTarget += data[1];
-            if(leftTiltTarget > LEFT_TILT_MAX) leftTiltTarget = LEFT_TILT_MAX;
-            if(leftTiltTarget < LEFT_TILT_MIN) leftTiltTarget = LEFT_TILT_MIN;
+            leftPanServo.target += data[0];
+            leftTiltServo.target += data[1];
             break;
         }
 
@@ -183,18 +171,12 @@ void loop()
         case RC_COREBOARD_RIGHTMAINGIMBALINCREMENT_DATA_ID:
         {
             int16_t* data = (int16_t*) packet.data;
-            rightPanTarget += data[0];
-            if(rightPanTarget > RIGHT_PAN_MAX) rightPanTarget = RIGHT_PAN_MAX;
-            if(rightPanTarget < RIGHT_PAN_MIN) rightPanTarget = RIGHT_PAN_MIN;
-            rightTiltTarget += data[1];
-            if(rightTiltTarget > RIGHT_TILT_MAX) rightTiltTarget = RIGHT_TILT_MAX;
-            if(rightTiltTarget < RIGHT_TILT_MIN) rightTiltTarget = RIGHT_TILT_MIN;
+            rightPanServo.target += data[0];
+            rightTiltServo.target += data[1];
             break;
         }
 
     }
-    
-    
 
     //Drive Packets
     switch(packet.data_id) {
@@ -265,16 +247,15 @@ void loop()
     MR_Motor.setDuty(motorSpeeds[4]);
     BR_Motor.setDuty(motorSpeeds[5]);
 
-    leftDriveServo.write(leftDriveTarget);
-    leftPanServo.write(leftPanTarget);
-    leftTiltServo.write(leftTiltTarget);
-    rightDriveServo.write(rightDriveTarget);
-    rightPanServo.write(rightPanTarget);
-    rightTiltServo.write(rightTiltTarget);
-    backDriveServo.write(backDriveTarget);
-    servo8.write(servoTarget8);
-    servo9.write(servoTarget9);
-
+    leftDriveServo.write();
+    leftPanServo.write();
+    leftTiltServo.write();
+    rightDriveServo.write();
+    rightPanServo.write();
+    rightTiltServo.write();
+    backDriveServo.write();
+    servo8.write();
+    servo9.write();
 
     lastTimestamp = timestamp;
 }
@@ -314,72 +295,53 @@ void manualButtons()
     switch(manualButtons)
     {
         case 7: //S1
-            leftDriveTarget += (reverse? -1 : 1);
-            if(leftDriveTarget > LEFT_DRIVE_MAX) leftDriveTarget = LEFT_DRIVE_MAX;
-            if(leftDriveTarget < LEFT_DRIVE_MIN) leftDriveTarget = LEFT_DRIVE_MIN;
+            leftDriveServo.target += (reverse? -1 : 1);
             delay(15);
             break;
         
         case 8: //S2
-            leftPanTarget += (reverse? -1 : 1);
-            if(leftPanTarget > LEFT_PAN_MAX) leftPanTarget = LEFT_PAN_MAX;
-            if(leftPanTarget < LEFT_PAN_MIN) leftPanTarget = LEFT_PAN_MIN;
+            leftPanServo.target += (reverse? -1 : 1);
             delay(15);
             break;
         
         case 9: //S3
-            leftTiltTarget += (reverse? -1 : 1);
-            if(leftTiltTarget > LEFT_TILT_MAX) leftTiltTarget = LEFT_TILT_MAX;
-            if(leftTiltTarget < LEFT_TILT_MIN) leftTiltTarget = LEFT_TILT_MIN;
+            leftTiltServo.target += (reverse? -1 : 1);
             delay(15);
             break;
         
         case 10: //S4
-            rightDriveTarget += (reverse? -1 : 1);
-            if(rightDriveTarget > RIGHT_DRIVE_MAX) rightDriveTarget = RIGHT_DRIVE_MAX;
-            if(rightDriveTarget < RIGHT_DRIVE_MIN) rightDriveTarget = RIGHT_DRIVE_MIN;
+            rightDriveServo.target += (reverse? -1 : 1);
             delay(15);
             break;
         
         case 11: //S5
-            rightPanTarget += (reverse? -1 : 1);
-            if(rightPanTarget > RIGHT_PAN_MAX) rightPanTarget = RIGHT_PAN_MAX;
-            if(rightPanTarget < RIGHT_PAN_MIN) rightPanTarget = RIGHT_PAN_MIN;
+            rightPanServo.target += (reverse? -1 : 1);
             delay(15);
             break;
         
         case 12: //S6
-            rightTiltTarget += (reverse? -1 : 1);
-            if(rightTiltTarget > RIGHT_TILT_MAX) rightTiltTarget = RIGHT_TILT_MAX;
-            if(rightTiltTarget < RIGHT_TILT_MIN) rightTiltTarget = RIGHT_TILT_MIN;
+            rightTiltServo.target += (reverse? -1 : 1);
             delay(15);
             break;
         
         case 13: //S7
-            backDriveTarget += (reverse? -1 : 1);
-            if(backDriveTarget > BACK_DRIVE_MAX) backDriveTarget = BACK_DRIVE_MAX;
-            if(backDriveTarget < BACK_DRIVE_MIN) backDriveTarget = BACK_DRIVE_MIN;
+            backDriveServo.target += (reverse? -1 : 1);
             delay(15);
             break;
         
         case 14: //S8
-            servoTarget8 += (reverse? -1 : 1);
-            if(servoTarget8 > 160) servoTarget8 = 160;
-            if(servoTarget8 < 10) servoTarget8 = 10;
+            servo8.target += (reverse? -1 : 1);
             delay(15);
             break;
         
         case 15: //S9
-            servoTarget9 += (reverse? -1 : 1);
-            if(servoTarget9 > 160) servoTarget9 = 160;
-            if(servoTarget9 < 10) servoTarget9 = 10;
+            servo9.target += (reverse? -1 : 1);
             delay(15);
             break;
 
         default:
             break;
     }
-
     
     lastManualButtons = manualButtons;
 }
@@ -407,13 +369,13 @@ void servoStartups()
     delay(2000);
     
     // the below is necessary even tho we send these during every loop and i have no idea why
-    leftDriveServo.write(leftDriveTarget);
-    leftPanServo.write(leftPanTarget);
-    leftTiltServo.write(leftTiltTarget);
-    rightDriveServo.write(rightDriveTarget);
-    rightPanServo.write(rightPanTarget);
-    rightTiltServo.write(rightTiltTarget);
-    backDriveServo.write(backDriveTarget);
+    leftDriveServo.write(90);
+    leftPanServo.write(90);
+    leftTiltServo.write(90);
+    rightDriveServo.write(90);
+    rightPanServo.write(90);
+    rightTiltServo.write(90);
+    backDriveServo.write(90);
 
     delay(50);
 }

@@ -64,21 +64,46 @@ float motorTargets[6] = {0, 0, 0, 0, 0, 0};
 float motorSpeeds[6] = {0, 0, 0, 0, 0, 0};
 int16_t motorCurrent[6] = {0, 0, 0, 0, 0, 0};
 
-//Servo Declarations - Three 9-pin Connectors each with Three Servos
-Servo leftDriveServo, leftPanServo, leftTiltServo;
-Servo rightDriveServo, rightPanServo, rightTiltServo;
-Servo backDriveServo, servo8, servo9;
+// A thin abstraction around an arduino Servo.
+// Set the public "target" field, then send it with write().
+// You can also write(value) which sets target and then write()'s.
+class CachedServo {
+  public:
+    CachedServo(int16_t target, int minTarget, int maxTarget): target(target), m_minTarget(minTarget), m_maxTarget(maxTarget) {}
+    uint8_t attach(int pin, int minServo, int maxServo) { return m_servo.attach(pin, minServo, maxServo); }
+    void write() { 
+      if(target != m_lastTarget) { // only send if changed
+        // clamp target to range
+        if(target < m_minTarget) 
+          target = m_minTarget;
+        if(target > m_maxTarget)
+          target = m_maxTarget;
+        m_servo.write(target); 
+      }
+      m_lastTarget = target;
+    }
+    void write(int16_t value) {
+      target = value;
+      write();
+    }
+    int16_t target;
+  private:
+    Servo m_servo;
+    int16_t m_lastTarget = 0;
+    int16_t m_minTarget, m_maxTarget;
+};
 
-//All servos are in order of leftDrive, leftPan, leftTilt, rightDrive, rightPan, rightTilt, backDrive, 8, 9
-int16_t leftDriveTarget = 90;
-int16_t leftPanTarget = 90;
-int16_t leftTiltTarget = 90;
-int16_t rightDriveTarget = 90;
-int16_t rightPanTarget = 90;
-int16_t rightTiltTarget = 90;
-int16_t backDriveTarget = 90;
-int16_t servoTarget8 = 90;
-int16_t servoTarget9 = 90;
+//Servo Declarations - Three 9-pin Connectors each with Three Servos
+CachedServo leftDriveServo(90, LEFT_DRIVE_MIN, LEFT_DRIVE_MAX);
+CachedServo leftPanServo(90, LEFT_PAN_MIN, LEFT_PAN_MAX);
+CachedServo leftTiltServo(90, LEFT_TILT_MIN, LEFT_TILT_MAX);
+
+CachedServo rightDriveServo(90, RIGHT_DRIVE_MIN, RIGHT_DRIVE_MAX);
+CachedServo rightPanServo(90, RIGHT_PAN_MIN, RIGHT_PAN_MAX);
+CachedServo rightTiltServo(90, RIGHT_TILT_MIN, RIGHT_TILT_MAX);
+
+CachedServo backDriveServo(90, BACK_DRIVE_MIN, BACK_DRIVE_MAX);
+CachedServo servo8(90, 10, 160), servo9(90, 10, 160);
 
 //Buttons Declaration
 uint8_t lastManualButtons = 0;
