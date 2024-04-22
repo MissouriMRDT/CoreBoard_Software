@@ -245,7 +245,9 @@ void loop()
     // Ramp
     float ramp = (timestamp - lastTimestamp) * DRIVE_MAX_RAMP;
     for(int i = 0; i < 6; i++) {
-        if((motorTargets[i] > motorSpeeds[i]) && ((motorTargets[i] - motorSpeeds[i]) > ramp)) {
+        if(motorTargets[i] == 0) {
+            motorSpeeds[i] = 0;
+        } else if((motorTargets[i] > motorSpeeds[i]) && ((motorTargets[i] - motorSpeeds[i]) > ramp)) {
             motorSpeeds[i] += ramp;
         }
         else if((motorTargets[i] < motorSpeeds[i]) && ((motorTargets[i] - motorSpeeds[i]) < -ramp)) {
