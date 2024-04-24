@@ -6,15 +6,18 @@ void setup() {
     Serial.println("CoreBoard Setup");
 
     //Attach Servos to Pins
-    leftDriveServo.attach(SERVO_4, 500, 2500);
+    leftDriveServo.attach(SERVO_6, 500, 2500);
     leftPanServo.attach(SERVO_5, 500, 2500);
-    leftTiltServo.attach(SERVO_6, 500, 2500);
-    rightDriveServo.attach(SERVO_1, 500, 2500);
+    leftTiltServo.attach(SERVO_4, 500, 2500);
+
+    rightDriveServo.attach(SERVO_3, 500, 2500);
     rightPanServo.attach(SERVO_2, 500, 2500);
-    rightTiltServo.attach(SERVO_3, 500, 2500);
+    rightTiltServo.attach(SERVO_1, 500, 2500);
+
     backDriveServo.attach(SERVO_7, 500, 2500);
-    servo8.attach(SERVO_8, 500, 2500);
-    servo9.attach(SERVO_9, 500, 2500);
+    
+    servo1.attach(SERVO_9, 500, 2500);
+    servo2.attach(SERVO_8, 500, 2500);
 
     
     //Initialize VESC serial ports
@@ -25,13 +28,6 @@ void setup() {
     MR_SERIAL.begin(115200);
     BR_SERIAL.begin(115200);
     while(!(FL_SERIAL) || !(ML_SERIAL) || !(BL_SERIAL) || !(FR_SERIAL) || !(MR_SERIAL) || !(BR_SERIAL));
-
-    FL_Motor.setSerialPort(&FL_SERIAL);
-    ML_Motor.setSerialPort(&ML_SERIAL);
-    BL_Motor.setSerialPort(&BL_SERIAL);
-    FR_Motor.setSerialPort(&FR_SERIAL);
-    MR_Motor.setSerialPort(&MR_SERIAL);
-    BR_Motor.setSerialPort(&BR_SERIAL);
 
     //Initialize Buttons
     pinMode(REVERSE, INPUT);
@@ -52,6 +48,8 @@ void setup() {
     servoStartups();
     feedWatchdog();
     lastTimestamp = millis();
+
+    accelerometer.begin();
 }
 
 void loop() 
@@ -112,8 +110,6 @@ void loop()
                     }
                     break;
 
-                default:
-                    break;
             }
             break;
         }
@@ -220,32 +216,15 @@ void loop()
 
     }
 
-
     manualButtons();
 
-
-    // Ramp
-    float ramp = (timestamp - lastTimestamp) * DRIVE_MAX_RAMP;
-    for(int i = 0; i < 6; i++) {
-        if((motorTargets[i] > motorSpeeds[i]) && ((motorTargets[i] - motorSpeeds[i]) > ramp)) {
-            motorSpeeds[i] += ramp;
-        }
-        else if((motorTargets[i] < motorSpeeds[i]) && ((motorTargets[i] - motorSpeeds[i]) < -ramp)) {
-            motorSpeeds[i] -= ramp;
-        }
-        else {
-            motorSpeeds[i] = motorTargets[i];
-        }
-    }
-
-
-    // Outputs
-    FL_Motor.setDuty(motorSpeeds[0]);
-    ML_Motor.setDuty(motorSpeeds[1]);
-    BL_Motor.setDuty(motorSpeeds[2]);
-    FR_Motor.setDuty(motorSpeeds[3]);
-    MR_Motor.setDuty(motorSpeeds[4]);
-    BR_Motor.setDuty(motorSpeeds[5]);
+    // convert to decipercent so RoveVESC can convert BACK to a float
+    FL_Motor.drive((int16_t)(motorTargets[0] * 1000));
+    ML_Motor.drive((int16_t)(motorTargets[1] * 1000));
+    BL_Motor.drive((int16_t)(motorTargets[2] * 1000));
+    FR_Motor.drive((int16_t)(motorTargets[3] * 1000));
+    MR_Motor.drive((int16_t)(motorTargets[4] * 1000));
+    BR_Motor.drive((int16_t)(motorTargets[5] * 1000));
 
     leftDriveServo.write();
     leftPanServo.write();
@@ -254,12 +233,13 @@ void loop()
     rightPanServo.write();
     rightTiltServo.write();
     backDriveServo.write();
-    servo8.write();
-    servo9.write();
+    servo1.write();
+    servo2.write();
+
+    accelerometer.read();
 
     lastTimestamp = timestamp;
 }
-
 
 void manualButtons()
 {
@@ -267,83 +247,73 @@ void manualButtons()
     uint8_t manualButtons = (digitalRead(B_ENC_3)<<3) | (digitalRead(B_ENC_2)<<2) | (digitalRead(B_ENC_1)<<1) | (digitalRead(B_ENC_0)<<0);
 
     // FL
-    if (manualButtons == 3) motorSpeeds[0] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 3) motorSpeeds[0] = 0;
+    if (manualButtons == FL_BUTTON) motorTargets[0] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == FL_BUTTON) motorTargets[0] = 0;
     
     // ML
-    if (manualButtons == 5) motorSpeeds[1] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 5) motorSpeeds[1] = 0;
+    if (manualButtons == ML_BUTTON) motorTargets[1] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == ML_BUTTON) motorTargets[1] = 0;
     
     // BL
-    if (manualButtons == 6) motorSpeeds[2] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 6) motorSpeeds[2] = 0;
+    if (manualButtons == BL_BUTTON) motorTargets[2] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == BL_BUTTON) motorTargets[2] = 0;
 
     // FR
-    if (manualButtons == 1) motorSpeeds[3] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 1) motorSpeeds[3] = 0;
+    if (manualButtons == FR_BUTTON) motorTargets[3] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == FR_BUTTON) motorTargets[3] = 0;
 
     // MR
-    if (manualButtons == 2) motorSpeeds[4] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 2) motorSpeeds[4] = 0;
+    if (manualButtons == MR_BUTTON) motorTargets[4] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == MR_BUTTON) motorTargets[4] = 0;
 
     // BR
-    if (manualButtons == 4) motorSpeeds[5] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == 4) motorSpeeds[5] = 0;
-
+    if (manualButtons == BR_BUTTON) motorTargets[5] = (reverse? -0.5 : 0.5);
+    else if (lastManualButtons == BR_BUTTON) motorTargets[5] = 0;
 
     // Servos
     switch(manualButtons)
     {
-        case 7: //S1
+        case LD_BUTTON: //S1
             leftDriveServo.target += (reverse? -1 : 1);
-            delay(15);
-            break;
-        
-        case 8: //S2
-            leftPanServo.target += (reverse? -1 : 1);
-            delay(15);
-            break;
-        
-        case 9: //S3
-            leftTiltServo.target += (reverse? -1 : 1);
-            delay(15);
-            break;
-        
-        case 10: //S4
-            rightDriveServo.target += (reverse? -1 : 1);
-            delay(15);
-            break;
-        
-        case 11: //S5
-            rightPanServo.target += (reverse? -1 : 1);
-            delay(15);
-            break;
-        
-        case 12: //S6
-            rightTiltServo.target += (reverse? -1 : 1);
-            delay(15);
-            break;
-        
-        case 13: //S7
-            backDriveServo.target += (reverse? -1 : 1);
-            delay(15);
-            break;
-        
-        case 14: //S8
-            servo8.target += (reverse? -1 : 1);
-            delay(15);
-            break;
-        
-        case 15: //S9
-            servo9.target += (reverse? -1 : 1);
-            delay(15);
             break;
 
-        default:
+        case LP_BUTTON: //S2
+            leftPanServo.target += (reverse? -1 : 1);
             break;
+
+        case LT_BUTTON: //S3
+            leftTiltServo.target += (reverse? -1 : 1);
+            break;
+
+        case RD_BUTTON: //S4
+            rightDriveServo.target += (reverse? -1 : 1);
+            break;
+
+        case RP_BUTTON: //S5
+            rightPanServo.target += (reverse? -1 : 1);
+            break;
+
+        case RT_BUTTON: //S6
+            rightTiltServo.target += (reverse? -1 : 1);
+            break;
+
+        case BD_BUTTON: //S7
+            backDriveServo.target += (reverse? -1 : 1);
+            break;
+
+        case S1_BUTTON: //S8
+            servo1.target += (reverse? -1 : 1);
+            break;
+
+        case S2_BUTTON: //S9
+            servo2.target += (reverse? -1 : 1);
+            break;
+
     }
-    
+
     lastManualButtons = manualButtons;
+    
+    delay(15);
 }
 
 void servoStartups()
