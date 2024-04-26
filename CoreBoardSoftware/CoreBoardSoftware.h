@@ -53,10 +53,10 @@ Adafruit_NeoPixel neoPixel = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL);
 
 //Vesc Serial Declaration
 RoveVESC FL_Motor(&FL_SERIAL);
-RoveVESC FR_Motor(&ML_SERIAL);
-RoveVESC ML_Motor(&BL_SERIAL);
-RoveVESC MR_Motor(&FR_SERIAL);
-RoveVESC BL_Motor(&MR_SERIAL);
+RoveVESC ML_Motor(&ML_SERIAL);
+RoveVESC BL_Motor(&BL_SERIAL);
+RoveVESC FR_Motor(&FR_SERIAL);
+RoveVESC MR_Motor(&MR_SERIAL);
 RoveVESC BR_Motor(&BR_SERIAL);
 
 //All wheels are in order of FL, ML, BL, FR, MR, BR
