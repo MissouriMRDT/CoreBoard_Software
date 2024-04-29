@@ -33,8 +33,9 @@
 #define RIGHT_TILT_MAX          180
 #define BACK_DRIVE_MAX          180
 
-#define TELEMETRY_UPDATE        150000
-IntervalTimer telemetry;
+#define TELEMETRY_PERIOD        1000000
+IntervalTimer Telemetry;
+void telemetry();
 
 #define WATCHDOG_TIMEOUT_TELEOP         300000
 #define WATCHDOG_TIMEOUT_AUTONOMY       1500000

@@ -50,6 +50,7 @@ void setup() {
     lastTimestamp = millis();
 
     accelerometer.begin();
+    Telemetry.begin(telemetry, TELEMETRY_PERIOD);
 }
 
 void loop() 
@@ -236,8 +237,6 @@ void loop()
     servo1.write();
     servo2.write();
 
-    accelerometer.read();
-
     lastTimestamp = timestamp;
 }
 
@@ -314,6 +313,11 @@ void manualButtons()
     lastManualButtons = manualButtons;
     
     delay(15);
+}
+
+void telemetry() {
+    accelerometer.read();
+    RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_ARMBOARD_COORDINATES_DATA_COUNT, accelerometer.acceleration);
 }
 
 void servoStartups()

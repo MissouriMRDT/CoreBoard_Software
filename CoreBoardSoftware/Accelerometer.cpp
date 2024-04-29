@@ -23,15 +23,18 @@ void Accelerometer::read() {
     Wire.beginTransmission(MPU_ADDR);
     Wire.write(0x3B); // start with register ACCEL_XOUT_H
     Wire.endTransmission(false); // keep connection alive
-    Wire.requestFrom(MPU_ADDR, 7*2, true); // request 14 registers
+    Wire.requestFrom(MPU_ADDR, 7*2, true); // request next 14 registers
 
-    acceleration.x = Wire.read() << 8 | Wire.read();
-    acceleration.y = Wire.read() << 8 | Wire.read();
-    acceleration.z = Wire.read() << 8 | Wire.read();
-
-    temperature = Wire.read() << 8 | Wire.read();
-
-    gyro.x = Wire.read() << 8 | Wire.read();
-    gyro.y = Wire.read() << 8 | Wire.read();
-    gyro.z = Wire.read() << 8 | Wire.read();
+    for (int i = 0; i < 3; i++) { // acceleration: refer to section 4.17
+        int16_t inVal = Wire.read() << 8 | Wire.read();
+        acceleration[i] = (float)inVal / 16384 / 9.81; // convert to g, then to m/s^2
+    }
+    { // temperature: refer to section 4.18
+        int16_t inVal = Wire.read() << 8 | Wire.read();
+        temperature = (float)inVal / 340 + 36.53; // convert to C
+    }
+    for (int i = 0; i < 3; i++) { // rotational velocity: refer to section 4.19
+        int16_t inVal = Wire.read() << 8 | Wire.read();
+        gyro[i] = (float)inVal / 131; // convert to deg/s
+    }
 }

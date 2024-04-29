@@ -3,10 +3,6 @@
 
 #include <Wire.h>
 
-struct Vector3 {
-    int16_t x, y, z;
-};
-
 class Accelerometer {
 
 public:
@@ -16,10 +12,9 @@ public:
 
     void read();
 
-    Vector3 acceleration;
-    int16_t temperature;
-    Vector3 gyro;
-    //Vector3 magnetometer:
+    float acceleration[3]; // m/s^2
+    float temperature; // degrees C
+    float gyro[3]; // deg/s
 
 private:
 
