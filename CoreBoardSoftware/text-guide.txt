@@ -1,0 +1,16 @@
+[bold][italic][underline][strikethrough]
+
+\0 end line
+
+-- 0 for on, 1 for off (rich text standard)
+\b0 \b1 --bold
+\i0 \i1 --italic not supported yet!
+\u0 \u1 --underline
+\s0 \s1 --strikethrough
+
+\m#ffffff; --color (m is the graphics mode in ANSII)
+\mr255g255b255;
+\m0; --reset (white)
+\h#ffffff; --highlight
+etc...
+\h0; --reset (transparent)

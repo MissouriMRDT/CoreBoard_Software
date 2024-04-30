@@ -1,5 +1,7 @@
 #include "CoreBoardSoftware.h"
 
+#include "images/autonomy_image.h"
+
 void setup() {
     // Initialize debug serial port
     Serial.begin(9600);
@@ -51,6 +53,8 @@ void setup() {
 
     accelerometer.begin();
     Telemetry.begin(telemetry, TELEMETRY_PERIOD);
+
+    RoveComm.write(8888, 8, "restart");
 }
 
 void loop() 
@@ -66,8 +70,8 @@ void loop()
         case RC_COREBOARD_LEDRGB_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
-            neoPixel.fill(neoPixel.Color(data[0], data[1], data[2]));
-            neoPixel.show();
+            Color color = {data[0], data[1], data[2]};
+            neoPixel.setBackgroundColor(color);
             break;
         }
 
@@ -78,6 +82,9 @@ void loop()
             switch(data[0])
             {
                 default:
+                    for (int i = 0; i < 64; i++) neoPixel.pushImageFrame(ColorFormat::GRAYSCALE, autonomy_image[i], 100);
+                    neoPixel.setRepeatAnimation(true);
+                    neoPixel.startAnimation();
                     break;
             }
 
@@ -87,30 +94,23 @@ void loop()
         case RC_COREBOARD_STATEDISPLAY_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
-            switch (data[0])
-            {
+            switch (data[0]) {
                 case TELEOP:
-                    neoPixel.fill(neoPixel.Color(0, 0, 255));
-                    neoPixel.show();
+                    neoPixel.clearAll();
+                    neoPixel.setBackgroundColor(BLUE);
                     break;
-                
                 case AUTONOMY:
-                    neoPixel.fill(neoPixel.Color(255, 0, 0));
-                    neoPixel.show();
+                    neoPixel.clearAll();
+                    neoPixel.setBackgroundColor(RED);
                     break;
-
                 case REACHED_GOAL:
-                    for(uint8_t i = 0; i < 5; i++)
-                    {
-                        neoPixel.fill(neoPixel.Color(0, 255, 0));
-                        neoPixel.show();
-                        delay(500);
-                        neoPixel.clear();
-                        neoPixel.show();
-                        delay(500);
+                    neoPixel.clearAll();
+                    for(uint8_t i = 0; i < 5; i++) {
+                        neoPixel.pushColorFrame(GREEN, 500);
+                        neoPixel.pushColorFrame(CLEAR, 500);
                     }
+                    neoPixel.startAnimation();
                     break;
-
             }
             break;
         }
@@ -121,11 +121,22 @@ void loop()
             uint8_t* data = (uint8_t*)packet.data;
             if(data[0] >= MAX_BRIGHTNESS) data[0] = MAX_BRIGHTNESS;
             neoPixel.setBrightness(data[0]);
-            neoPixel.show();
             break;
+        }
+        #define RC_ROVESOTEXT_DATA_ID 6969
+        case RC_ROVESOTEXT_DATA_ID:
+        {
+            char *message = (char*)packet.data;
+            uint32_t messageLength = 0;
+            for (; messageLength < 4 && message[messageLength] != '\0'; messageLength++);
+            neoPixel.setMessage(message, messageLength);
+            RoveComm.writeReliable(4242, 1, messageLength);
         }
 
     }
+    static int count = 0;
+    if (++count % 100 == 0) RoveComm.write(7474, 4, "poob");
+    neoPixel.update();
 
     //Gimbal Packets
     switch (packet.data_id) {
@@ -317,7 +328,7 @@ void manualButtons()
 
 void telemetry() {
     accelerometer.read();
-    RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_ARMBOARD_COORDINATES_DATA_COUNT, accelerometer.acceleration);
+    RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_COREBOARD_ACCELEROMETERDATA_DATA_COUNT, accelerometer.acceleration);
 }
 
 void servoStartups()

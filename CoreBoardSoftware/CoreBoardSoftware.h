@@ -4,14 +4,10 @@
 #include "PinAssignments.h"
 #include "CachedServo.h"
 #include "Accelerometer.h"
+#include "PixelPainter.h"
 
 #include <RoveComm.h>
 #include <RoveVESC.h>
-
-#include <Adafruit_NeoPixel.h>
-
-#define MAX_BRIGHTNESS          70
-#define LED_COUNT               256
 
 #define DRIVE_MIN_RPM           2000
 #define DRIVE_MAX_RPM           30000
@@ -33,7 +29,7 @@
 #define RIGHT_TILT_MAX          180
 #define BACK_DRIVE_MAX          180
 
-#define TELEMETRY_PERIOD        1000000
+#define TELEMETRY_PERIOD        200000
 IntervalTimer Telemetry;
 void telemetry();
 
@@ -49,8 +45,6 @@ RoveCommEthernet RoveComm;
 rovecomm_packet packet;
 
 uint32_t lastTimestamp;
-
-Adafruit_NeoPixel neoPixel = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL);
 
 //Vesc Serial Declaration
 RoveVESC FL_Motor(&FL_SERIAL);
@@ -82,6 +76,8 @@ uint8_t lastManualButtons = 0;
 
 // Accelerometer
 Accelerometer accelerometer(ACC_SDA, ACC_SCL);
+
+PixelPainter neoPixel(NEOPIXEL);
 
 // Methods
 void estop();
