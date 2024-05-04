@@ -1,7 +1,7 @@
 #ifndef AUTONOMY_IMAGE_H
 #define AUTONOMY_IMAGE_H
 
-DMAMEM const uint8_t autonomy_image[][256] = {
+const uint8_t autonomy_image[][256] = {
     {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 

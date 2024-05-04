@@ -1,7 +1,7 @@
 #ifndef PIXEL_TEXT_REGULAR_H
 #define PIXEL_TEXT_REGULAR_H
 
-DMAMEM const uint8_t pixel_text_regular[][64] = {
+const uint8_t pixel_text_regular[][64] = {
     {
         0, 0, 0, 0, 0, 0, 0, 0, 
         0, 0, 0, 0, 0, 0, 0, 0, 

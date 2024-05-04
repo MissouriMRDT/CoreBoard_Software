@@ -1,7 +1,7 @@
 #ifndef PIXEL_TEXT_BOLD_H
 #define PIXEL_TEXT_BOLD_H
 
-DMAMEM const uint8_t pixel_text_bold[][64] = {
+const uint8_t pixel_text_bold[][64] = {
     {
         0, 0, 0, 0, 0, 0, 0, 0, 
         0, 0, 0, 0, 0, 0, 0, 0, 

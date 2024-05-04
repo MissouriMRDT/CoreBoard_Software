@@ -7,10 +7,11 @@
 #define LED_COUNT               256
 
 #define MAX_MESSAGE_LENGTH      256
+#define SCROLL_TIME             50
 
 struct Color {
     uint8_t r, g, b;
-    uint8_t a = 255; // a will only be transparent if it is exactly 0
+    uint8_t transparent;
 };
 
 const Color WHITE = {255, 255, 255};
@@ -20,7 +21,7 @@ const Color GREEN = {0, 255, 0};
 const Color CYAN = {0, 255, 255};
 const Color BLUE = {0, 0, 255};
 const Color MAGENTA = {255, 0, 255};
-const Color CLEAR = {0, 0, 0, 0};
+const Color CLEAR = {0, 0, 0, true};
 
 enum FrameType {
     COLOR, IMAGE,  
@@ -53,6 +54,16 @@ public:
 
     void begin() { m_neoPixel.begin(); }
 
+    void setPixelRGB(int x, int y, const Color &color) {
+      if (color.transparent) return;
+      int i = 256 - (8 * x) + (x % 2 == 0 ? -8 + y :  -y - 1);
+      m_neoPixel.setPixelColor(i, color.r, color.g, color.b);
+    }
+    void setPixelGrayscale(int x, int y, uint8_t value) {
+      int i = 256 - (8 * x) + (x % 2 == 0 ? -8 + y :  -y - 1);
+      m_neoPixel.setPixelColor(i, value, value, value);
+    }
+
     void setMessage(const char *message, uint32_t length); // text renders above animations
 
     void setTextScrollSpeed(float pixelsPerSecond) { m_scrollTime = (uint32_t)((1 / pixelsPerSecond) * 1000); }
@@ -68,7 +79,7 @@ public:
     void pauseAnimation() { m_playingAnimation = false; }
     void stopAnimation() { m_playingAnimation = false; setCurrentFrame(m_firstFrame); }
 
-    void clearAll() { clearAnimation(); setMessage(nullptr, 0); }
+    void clearAll() { clearAnimation(); setMessage(nullptr, 0); setBackgroundColor(CLEAR); }
 
     void update();
 
@@ -85,8 +96,8 @@ private:
     uint32_t m_messageLength = 0;
     uint32_t m_messagePixels = 0;
     uint32_t m_scrollTimestamp = 0;
-    int32_t m_scrollOffset = 0;
-    uint32_t m_scrollTime = 200; // milliseconds; 0 for no scroll
+    int32_t m_scrollOffset = 0; // how many pixels shifted to the left
+    uint32_t m_scrollTime = SCROLL_TIME; // milliseconds; 0 for no scroll
     
     KeyFrame *m_firstFrame = nullptr;
     KeyFrame *m_lastFrame = nullptr;

@@ -1,6 +1,8 @@
 #include "CoreBoardSoftware.h"
 
 #include "images/autonomy_image.h"
+#include "images/test_image.h"
+#include "images/unpleasant_gradient.h"
 
 void setup() {
     // Initialize debug serial port
@@ -21,7 +23,6 @@ void setup() {
     servo1.attach(SERVO_9, 500, 2500);
     servo2.attach(SERVO_8, 500, 2500);
 
-    
     //Initialize VESC serial ports
     FL_SERIAL.begin(115200);
     ML_SERIAL.begin(115200);
@@ -53,15 +54,11 @@ void setup() {
 
     accelerometer.begin();
     Telemetry.begin(telemetry, TELEMETRY_PERIOD);
-
-    RoveComm.write(8888, 8, "restart");
 }
 
-void loop() 
-{
+void loop() {
     uint32_t timestamp = millis();
     packet = RoveComm.read();
-
     
     //Multimedia Packets
     switch(packet.data_id) {
@@ -79,32 +76,73 @@ void loop()
         case RC_COREBOARD_LEDPATTERNS_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
+            neoPixel.clearAll();
             switch(data[0])
             {
-                default:
+                case 0:
+                    //neoPixel.clearAll();
+                    break;
+                case 1:
+                    neoPixel.pushImageFrame(ColorFormat::RGB, test_image[0], 10000);
+                    neoPixel.setRepeatAnimation(true);
+                    neoPixel.startAnimation();
+                    break;
+                case 2:
+                    //neoPixel.clearAnimation();
                     for (int i = 0; i < 64; i++) neoPixel.pushImageFrame(ColorFormat::GRAYSCALE, autonomy_image[i], 100);
                     neoPixel.setRepeatAnimation(true);
                     neoPixel.startAnimation();
                     break;
+                case 3:
+                    neoPixel.setMessage("Fuck California!", 16);
+                    break;
+                case 4:
+                    neoPixel.setMessage("\\c#00ff00;\\b0Fuck\\b1 \\c#ffff00;\\h#0000ff; California! ", 54);
+                    break;
+                case 5:
+                    neoPixel.setBackgroundColor(CYAN);
+                    neoPixel.setMessage("\\b0\\c#ff0000;No Fly Zone", 24);
+                    break;
+                case 6:
+                    neoPixel.setMessage("\\b0#RoveSoHard\\b1", 17);
+                    break;
+                case 7:
+                    neoPixel.setMessage("Today, Tomorrow, Forever!", 25);
+                    break;
+                case 8:
+                    neoPixel.setBackgroundColor(Color{153, 0, 0}); // #990000 (based station color)
+                    neoPixel.setMessage("\\b0MRDT", 7);
+                    break;
+                case 9:
+                    neoPixel.setBackgroundColor(Color{23, 70, 52}); // #164734
+                    neoPixel.setMessage("\\c#bdd245;Missouri University of Science and Technology", 55);
+                    break;
+                case 10:
+                    neoPixel.setMessage(
+                      "\\h#164734;\\c#bdd245;   Missouri University of Science and Technology   \\h0;\\c#ff0000;   Mars Rover Design Team   ", 113);
+                    break;
+                case 11:
+                    neoPixel.pushImageFrame(ColorFormat::RGB, unpleasant_gradient[0], 10000);
+                    neoPixel.setRepeatAnimation(true);
+                    neoPixel.startAnimation();
+                    break;
             }
-
+            break;
         }
 
         //[Teleop, Autonomy, Reached Goal] -> Color
         case RC_COREBOARD_STATEDISPLAY_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
+            neoPixel.clearAll();
             switch (data[0]) {
                 case TELEOP:
-                    neoPixel.clearAll();
                     neoPixel.setBackgroundColor(BLUE);
                     break;
                 case AUTONOMY:
-                    neoPixel.clearAll();
                     neoPixel.setBackgroundColor(RED);
                     break;
                 case REACHED_GOAL:
-                    neoPixel.clearAll();
                     for(uint8_t i = 0; i < 5; i++) {
                         neoPixel.pushColorFrame(GREEN, 500);
                         neoPixel.pushColorFrame(CLEAR, 500);
@@ -123,19 +161,8 @@ void loop()
             neoPixel.setBrightness(data[0]);
             break;
         }
-        #define RC_ROVESOTEXT_DATA_ID 6969
-        case RC_ROVESOTEXT_DATA_ID:
-        {
-            char *message = (char*)packet.data;
-            uint32_t messageLength = 0;
-            for (; messageLength < 4 && message[messageLength] != '\0'; messageLength++);
-            neoPixel.setMessage(message, messageLength);
-            RoveComm.writeReliable(4242, 1, messageLength);
-        }
 
     }
-    static int count = 0;
-    if (++count % 100 == 0) RoveComm.write(7474, 4, "poob");
     neoPixel.update();
 
     //Gimbal Packets
@@ -251,8 +278,7 @@ void loop()
     lastTimestamp = timestamp;
 }
 
-void manualButtons()
-{
+void manualButtons() {
     bool reverse = digitalRead(REVERSE);
     uint8_t manualButtons = (digitalRead(B_ENC_3)<<3) | (digitalRead(B_ENC_2)<<2) | (digitalRead(B_ENC_1)<<1) | (digitalRead(B_ENC_0)<<0);
 
