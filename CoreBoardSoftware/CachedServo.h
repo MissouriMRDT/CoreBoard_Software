@@ -1,7 +1,11 @@
 #ifndef CACHED_SERVO_H
 #define CACHED_SERVO_H
 
-#include <Servo.h>
+// https://github.com/PaulStoffregen/PWMServo.git
+// This library is necessary because the Arduino <Servo.h> library does not actually use the PWM pin,
+// so when Interrupts and Serial hold up the processor, the gimbals twitch. This library calls analogWrite()
+// so the twitching doesn't happen.
+#include <PWMServo.h>
 
 // A thin abstraction around an arduino Servo.
 // Set the public "target" field, then send it with write().
@@ -22,7 +26,7 @@ public:
 
 private:
   
-    Servo m_servo;
+    PWMServo m_servo;
     int16_t m_lastTarget = 0;
     int16_t m_minAngle, m_maxAngle;
 

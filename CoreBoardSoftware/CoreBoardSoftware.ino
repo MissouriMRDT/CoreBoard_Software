@@ -53,8 +53,7 @@ void setup() {
     Telemetry.begin(telemetry, TELEMETRY_PERIOD);
 }
 
-void loop() 
-{
+void loop() {
     uint32_t timestamp = millis();
     packet = RoveComm.read();
 
@@ -240,8 +239,7 @@ void loop()
     lastTimestamp = timestamp;
 }
 
-void manualButtons()
-{
+void manualButtons() {
     bool reverse = digitalRead(REVERSE);
     uint8_t manualButtons = (digitalRead(B_ENC_3)<<3) | (digitalRead(B_ENC_2)<<2) | (digitalRead(B_ENC_1)<<1) | (digitalRead(B_ENC_0)<<0);
 
@@ -317,11 +315,10 @@ void manualButtons()
 
 void telemetry() {
     accelerometer.read();
-    RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_ARMBOARD_COORDINATES_DATA_COUNT, accelerometer.acceleration);
+    RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_COREBOARD_ACCELEROMETERDATA_DATA_COUNT, accelerometer.acceleration);
 }
 
-void servoStartups()
-{
+void servoStartups() {
     leftDriveServo.write(LEFT_DRIVE_MIN);
     leftPanServo.write(LEFT_PAN_MIN);
     leftTiltServo.write(LEFT_TILT_MIN);
@@ -354,8 +351,7 @@ void servoStartups()
     delay(50);
 }
 
-void estop() 
-{    
+void estop() {   
     if(!watchdogOverride) {
         for(int i = 0; i < 6; i++) {
             motorTargets[i] = 0;
