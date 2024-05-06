@@ -1,7 +1,7 @@
 #ifndef CACHED_SERVO_H
 #define CACHED_SERVO_H
 
-#include <Servo.h>
+#include <PWMServo.h>
 
 // A thin abstraction around an arduino Servo.
 // Set the public "target" field, then send it with write().
@@ -22,7 +22,7 @@ public:
 
 private:
   
-    Servo m_servo;
+    PWMServo m_servo;
     int16_t m_lastTarget = 0;
     int16_t m_minAngle, m_maxAngle;
 

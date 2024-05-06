@@ -23,7 +23,7 @@ void Accelerometer::read() {
     Wire.beginTransmission(MPU_ADDR);
     Wire.write(0x3B); // start with register ACCEL_XOUT_H
     Wire.endTransmission(false); // keep connection alive
-    Wire.requestFrom(MPU_ADDR, 7*2, true); // request next 14 registers
+    Wire.requestFrom((uint8_t)MPU_ADDR, (uint8_t)7*2, true); // request next 14 registers
 
     for (int i = 0; i < 3; i++) { // acceleration: refer to section 4.17
         int16_t inVal = Wire.read() << 8 | Wire.read();
