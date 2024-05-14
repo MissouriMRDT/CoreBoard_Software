@@ -20,18 +20,18 @@
 #define LEFT_DRIVE_MIN          0
 #define LEFT_PAN_MIN            0
 #define LEFT_TILT_MIN           0
-#define RIGHT_DRIVE_MIN         0
+#define RIGHT_DRIVE_MIN         40
 #define RIGHT_PAN_MIN           0
 #define RIGHT_TILT_MIN          0
 #define BACK_DRIVE_MIN          0
 
-#define LEFT_DRIVE_MAX          180
+#define LEFT_DRIVE_MAX          140
 #define LEFT_PAN_MAX            180
 #define LEFT_TILT_MAX           180
 #define RIGHT_DRIVE_MAX         180
 #define RIGHT_PAN_MAX           180
 #define RIGHT_TILT_MAX          180
-#define BACK_DRIVE_MAX          180
+#define BACK_DRIVE_MAX          140
 
 #define TELEMETRY_PERIOD        1000000
 IntervalTimer Telemetry;

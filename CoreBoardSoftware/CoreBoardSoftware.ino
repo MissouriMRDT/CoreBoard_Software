@@ -322,9 +322,9 @@ void servoStartups() {
     leftDriveServo.write(LEFT_DRIVE_MIN);
     leftPanServo.write(LEFT_PAN_MIN);
     leftTiltServo.write(LEFT_TILT_MIN);
-    rightDriveServo.write(RIGHT_DRIVE_MIN);
-    rightPanServo.write(RIGHT_PAN_MIN);
-    rightTiltServo.write(RIGHT_TILT_MIN);
+    rightDriveServo.write(RIGHT_DRIVE_MAX);
+    rightPanServo.write(RIGHT_PAN_MAX);
+    rightTiltServo.write(RIGHT_TILT_MAX);
     backDriveServo.write(BACK_DRIVE_MIN);
 
     delay(2000);
@@ -332,21 +332,21 @@ void servoStartups() {
     leftDriveServo.write(LEFT_DRIVE_MAX);
     leftPanServo.write(LEFT_PAN_MAX);
     leftTiltServo.write(LEFT_TILT_MAX);
-    rightDriveServo.write(RIGHT_DRIVE_MAX);
-    rightPanServo.write(RIGHT_PAN_MAX);
-    rightTiltServo.write(RIGHT_TILT_MAX);
+    rightDriveServo.write(RIGHT_DRIVE_MIN);
+    rightPanServo.write(RIGHT_PAN_MIN);
+    rightTiltServo.write(RIGHT_TILT_MIN);
     backDriveServo.write(BACK_DRIVE_MAX);
 
     delay(2000);
     
     // the below is necessary even tho we send these during every loop and i have no idea why
-    leftDriveServo.write(90);
+    leftDriveServo.write(20);
     leftPanServo.write(90);
-    leftTiltServo.write(90);
-    rightDriveServo.write(90);
+    leftTiltServo.write(40);
+    rightDriveServo.write(160);
     rightPanServo.write(90);
-    rightTiltServo.write(90);
-    backDriveServo.write(90);
+    rightTiltServo.write(140);
+    backDriveServo.write(20);
 
     delay(50);
 }
