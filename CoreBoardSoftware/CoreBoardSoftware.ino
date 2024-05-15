@@ -50,14 +50,11 @@ void setup() {
 
     servoStartups();
     feedWatchdog();
-    lastTimestamp = millis();
 
     accelerometer.begin();
-    Telemetry.begin(telemetry, TELEMETRY_PERIOD);
 }
 
 void loop() {
-    uint32_t timestamp = millis();
     packet = RoveComm.read();
     
     //Multimedia Packets
@@ -255,27 +252,37 @@ void loop() {
 
     }
 
-    manualButtons();
+    uint32_t now = millis();
+    
+    if (lastDriveUpdate - now >= DRIVE_UPDATE_PERIOD) {
+        manualButtons();
 
-    // convert to decipercent so RoveVESC can convert BACK to a float
-    FL_Motor.drive((int16_t)(motorTargets[0] * 1000));
-    ML_Motor.drive((int16_t)(motorTargets[1] * 1000));
-    BL_Motor.drive((int16_t)(motorTargets[2] * 1000));
-    FR_Motor.drive((int16_t)(motorTargets[3] * 1000));
-    MR_Motor.drive((int16_t)(motorTargets[4] * 1000));
-    BR_Motor.drive((int16_t)(motorTargets[5] * 1000));
+        // because drive() also does speed ramping, we can't do caching like for the servos
+        // convert to decipercent so RoveVESC can convert BACK to a float
+        FL_Motor.drive((int16_t)(motorTargets[0] * 1000));
+        ML_Motor.drive((int16_t)(motorTargets[1] * 1000));
+        BL_Motor.drive((int16_t)(motorTargets[2] * 1000));
+        FR_Motor.drive((int16_t)(motorTargets[3] * 1000));
+        MR_Motor.drive((int16_t)(motorTargets[4] * 1000));
+        BR_Motor.drive((int16_t)(motorTargets[5] * 1000));
 
-    leftDriveServo.write();
-    leftPanServo.write();
-    leftTiltServo.write();
-    rightDriveServo.write();
-    rightPanServo.write();
-    rightTiltServo.write();
-    backDriveServo.write();
-    servo1.write();
-    servo2.write();
+        leftDriveServo.write();
+        leftPanServo.write();
+        leftTiltServo.write();
+        rightDriveServo.write();
+        rightPanServo.write();
+        rightTiltServo.write();
+        backDriveServo.write();
+        servo1.write();
+        servo2.write();
 
-    lastTimestamp = timestamp;
+        lastDriveUpdate = now;
+    }
+
+    if (lastTelemetry - now >= TELEMETRY_PERIOD) {
+        telemetry();
+        lastTelemetry = now;
+    }
 }
 
 void manualButtons() {
@@ -348,8 +355,7 @@ void manualButtons() {
     }
 
     lastManualButtons = manualButtons;
-    
-    delay(15);
+
 }
 
 void telemetry() {
@@ -361,9 +367,9 @@ void servoStartups() {
     leftDriveServo.write(LEFT_DRIVE_MIN);
     leftPanServo.write(LEFT_PAN_MIN);
     leftTiltServo.write(LEFT_TILT_MIN);
-    rightDriveServo.write(RIGHT_DRIVE_MIN);
-    rightPanServo.write(RIGHT_PAN_MIN);
-    rightTiltServo.write(RIGHT_TILT_MIN);
+    rightDriveServo.write(RIGHT_DRIVE_MAX);
+    rightPanServo.write(RIGHT_PAN_MAX);
+    rightTiltServo.write(RIGHT_TILT_MAX);
     backDriveServo.write(BACK_DRIVE_MIN);
 
     delay(2000);
@@ -371,26 +377,26 @@ void servoStartups() {
     leftDriveServo.write(LEFT_DRIVE_MAX);
     leftPanServo.write(LEFT_PAN_MAX);
     leftTiltServo.write(LEFT_TILT_MAX);
-    rightDriveServo.write(RIGHT_DRIVE_MAX);
-    rightPanServo.write(RIGHT_PAN_MAX);
-    rightTiltServo.write(RIGHT_TILT_MAX);
+    rightDriveServo.write(RIGHT_DRIVE_MIN);
+    rightPanServo.write(RIGHT_PAN_MIN);
+    rightTiltServo.write(RIGHT_TILT_MIN);
     backDriveServo.write(BACK_DRIVE_MAX);
 
     delay(2000);
     
     // the below is necessary even tho we send these during every loop and i have no idea why
-    leftDriveServo.write(90);
+    leftDriveServo.write(20);
     leftPanServo.write(90);
-    leftTiltServo.write(90);
-    rightDriveServo.write(90);
+    leftTiltServo.write(40);
+    rightDriveServo.write(160);
     rightPanServo.write(90);
-    rightTiltServo.write(90);
-    backDriveServo.write(90);
+    rightTiltServo.write(140);
+    backDriveServo.write(20);
 
     delay(50);
 }
 
-void estop() {  
+void estop() {   
     if(!watchdogOverride) {
         for(int i = 0; i < 6; i++) {
             motorTargets[i] = 0;
