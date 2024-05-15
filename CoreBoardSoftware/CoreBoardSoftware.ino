@@ -47,16 +47,12 @@ void setup() {
 
     servoStartups();
     feedWatchdog();
-    lastTimestamp = millis();
 
     accelerometer.begin();
-    Telemetry.begin(telemetry, TELEMETRY_PERIOD);
 }
 
 void loop() {
-    uint32_t timestamp = millis();
     packet = RoveComm.read();
-
     
     //Multimedia Packets
     switch(packet.data_id) {
@@ -216,27 +212,37 @@ void loop() {
 
     }
 
-    manualButtons();
+    uint32_t now = millis();
+    
+    if (lastDriveUpdate - now >= DRIVE_UPDATE_PERIOD) {
+        manualButtons();
 
-    // convert to decipercent so RoveVESC can convert BACK to a float
-    FL_Motor.drive((int16_t)(motorTargets[0] * 1000));
-    ML_Motor.drive((int16_t)(motorTargets[1] * 1000));
-    BL_Motor.drive((int16_t)(motorTargets[2] * 1000));
-    FR_Motor.drive((int16_t)(motorTargets[3] * 1000));
-    MR_Motor.drive((int16_t)(motorTargets[4] * 1000));
-    BR_Motor.drive((int16_t)(motorTargets[5] * 1000));
+        // because drive() also does speed ramping, we can't do caching like for the servos
+        // convert to decipercent so RoveVESC can convert BACK to a float
+        FL_Motor.drive((int16_t)(motorTargets[0] * 1000));
+        ML_Motor.drive((int16_t)(motorTargets[1] * 1000));
+        BL_Motor.drive((int16_t)(motorTargets[2] * 1000));
+        FR_Motor.drive((int16_t)(motorTargets[3] * 1000));
+        MR_Motor.drive((int16_t)(motorTargets[4] * 1000));
+        BR_Motor.drive((int16_t)(motorTargets[5] * 1000));
 
-    leftDriveServo.write();
-    leftPanServo.write();
-    leftTiltServo.write();
-    rightDriveServo.write();
-    rightPanServo.write();
-    rightTiltServo.write();
-    backDriveServo.write();
-    servo1.write();
-    servo2.write();
+        leftDriveServo.write();
+        leftPanServo.write();
+        leftTiltServo.write();
+        rightDriveServo.write();
+        rightPanServo.write();
+        rightTiltServo.write();
+        backDriveServo.write();
+        servo1.write();
+        servo2.write();
 
-    lastTimestamp = timestamp;
+        lastDriveUpdate = now;
+    }
+
+    if (lastTelemetry - now >= TELEMETRY_PERIOD) {
+        telemetry();
+        lastTelemetry = now;
+    }
 }
 
 void manualButtons() {
@@ -309,8 +315,7 @@ void manualButtons() {
     }
 
     lastManualButtons = manualButtons;
-    
-    delay(15);
+
 }
 
 void telemetry() {

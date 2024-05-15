@@ -33,8 +33,8 @@
 #define RIGHT_TILT_MAX          180
 #define BACK_DRIVE_MAX          140
 
-#define TELEMETRY_PERIOD        1000000
-IntervalTimer Telemetry;
+#define TELEMETRY_PERIOD        500 // ms
+uint32_t lastTelemetry = 0;
 void telemetry();
 
 #define WATCHDOG_TIMEOUT_TELEOP         300000
@@ -48,9 +48,10 @@ EthernetServer TCPServer(RC_ROVECOMM_ETHERNET_TCP_PORT);
 RoveCommEthernet RoveComm;
 rovecomm_packet packet;
 
-uint32_t lastTimestamp;
-
 Adafruit_NeoPixel neoPixel = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL);
+
+#define DRIVE_UPDATE_PERIOD       15 // ms
+uint32_t lastDriveUpdate = 0;
 
 //Vesc Serial Declaration
 RoveVESC FL_Motor(&FL_SERIAL);
