@@ -155,7 +155,7 @@ void PixelPainter::setMessage(const char *message, uint32_t length) {
         m_scrollTime = SCROLL_TIME;
         m_scrollOffset = -32;
     }
-    m_scrollTimestamp = millis();
+    m_scrollTimestamp = micros();
     m_needsRefresh = true;
 }
 void PixelPainter::pushFrame(KeyFrame *frame) {
@@ -167,11 +167,11 @@ void PixelPainter::pushFrame(KeyFrame *frame) {
     m_lastFrame = frame;
 }
 void PixelPainter::pushColorFrame(Color color, uint32_t duration) {
-    ColorFrame *frame = new ColorFrame{{nullptr, FrameType::COLOR, duration}, color};
+    ColorFrame *frame = new ColorFrame{{nullptr, FrameType::COLOR, duration * 1000}, color};
     pushFrame(reinterpret_cast<KeyFrame*>(frame));
 }
 void PixelPainter::pushImageFrame(ColorFormat format, const uint8_t *data, uint32_t duration) {
-    ImageFrame *frame = new ImageFrame{{nullptr, FrameType::IMAGE, duration}, format, data};
+    ImageFrame *frame = new ImageFrame{{nullptr, FrameType::IMAGE, duration * 1000}, format, data};
     pushFrame(reinterpret_cast<KeyFrame*>(frame));
 }
 
@@ -194,19 +194,20 @@ void PixelPainter::clearAnimation() {
 }
 
 void PixelPainter::update() {
-    uint32_t now = millis();
+    uint32_t now = micros();
     uint32_t delta = now - m_lastTimestamp;
+    m_lastTimestamp = now;
     if (m_playingAnimation) { 
-      m_animationProgress += delta;
-      m_lastTimestamp = now;
-    }
-    if (m_currentFrame != nullptr && m_animationProgress > m_currentFrame->duration) {
-        m_animationProgress -= m_currentFrame->duration;
-        if (m_currentFrame == m_lastFrame) {
-            stopAnimation();
-            if (m_repeatAnimation) startAnimation();
-        } else {
-            setCurrentFrame(m_currentFrame->nextPtr);
+        m_animationProgress += delta;
+        if (m_currentFrame != nullptr && m_animationProgress > m_currentFrame->duration) {
+            m_animationProgress -= m_currentFrame->duration;
+            if (m_currentFrame == m_lastFrame) {
+                if (m_repeatAnimation) {
+                    setCurrentFrame(m_firstFrame);
+                } else pauseAnimation(); // stay on last frame
+            } else {
+                setCurrentFrame(m_currentFrame->nextPtr);
+            }
         }
     }
     if (m_messageLength != 0 && m_scrollTime != 0 && now - m_scrollTimestamp >= m_scrollTime) {
@@ -230,35 +231,35 @@ void PixelPainter::renderText() {
     TextReader reader(m_message, m_messageLength);
     while (pos < 32) {
         if (reader.next()) {
-          const uint8_t *data = lookupCharacter(reader.currentChar, reader.bold);
-          int charWidth = lookupCharacterWidth(reader.currentChar, reader.bold);
-          for (int col = 0; col < charWidth; col++) {
-              if (pos >= 0 && pos < 32) {
-                  // draw column
-                  for (int row = 0; row < 8; row++) {
-                      int index = row * 8 + col;
-                      uint8_t pixel = data[index];
-                      if (pixel == 0) {
-                          setPixelRGB(pos, row, reader.highlight);
-                          if (row == 7 && reader.underline) setPixelRGB(pos, row, reader.color);
-                          if (row == 3 && reader.strike) setPixelRGB(pos, row, reader.color);
-                      } else {
-                          setPixelRGB(pos, row, reader.color);
-                      }
-                  }
-              }
-              ++pos;
-          }
-          if (pos >= 0 && pos < 32) { // one column spacing between characters
-              for (int row = 0; row < 8; row++) {
-                  setPixelRGB(pos, row, reader.highlight);
-                  if (row == 7 && reader.underline) setPixelRGB(pos, row, reader.color);
-                  if (row == 3 && reader.strike) setPixelRGB(pos, row, reader.color);
-              }
-          }
-          ++pos;
-        } else { // wrap around if we haven't made it yet
-            if (pos < 32)
+            const uint8_t *data = lookupCharacter(reader.currentChar, reader.bold);
+            int charWidth = lookupCharacterWidth(reader.currentChar, reader.bold);
+            for (int col = 0; col < charWidth; col++) {
+                if (pos >= 0 && pos < 32) {
+                    // draw column
+                    for (int row = 0; row < 8; row++) {
+                        int index = row * 8 + col;
+                        uint8_t pixel = data[index];
+                        if (pixel == 0) {
+                            setPixelRGB(pos, row, reader.highlight);
+                            if (row == 7 && reader.underline) setPixelRGB(pos, row, reader.color);
+                            if (row == 3 && reader.strike) setPixelRGB(pos, row, reader.color);
+                        } else {
+                            setPixelRGB(pos, row, reader.color);
+                        }
+                    }
+                }
+                ++pos;
+            }
+            if (pos >= 0 && pos < 32) { // one column spacing between characters
+                for (int row = 0; row < 8; row++) {
+                    setPixelRGB(pos, row, reader.highlight);
+                    if (row == 7 && reader.underline) setPixelRGB(pos, row, reader.color);
+                    if (row == 3 && reader.strike) setPixelRGB(pos, row, reader.color);
+                }
+            }
+            ++pos;
+        } else { // wrap around if we haven't made it yet (and the message isn't short)
+            if (pos < 32 && m_messagePixels > 32)
                 reader.reset();
         }
     }

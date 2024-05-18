@@ -6,8 +6,9 @@
 #define MAX_BRIGHTNESS          70
 #define LED_COUNT               256
 
-#define MAX_MESSAGE_LENGTH      256
-#define SCROLL_TIME             50
+#include <RoveCommManifest.h>
+#define MAX_MESSAGE_LENGTH      RC_COREBOARD_LEDTEXT_DATA_COUNT // 256
+#define SCROLL_TIME             50000 // microseconds
 
 struct Color {
     uint8_t r, g, b;
@@ -34,7 +35,7 @@ enum ColorFormat {
 struct KeyFrame {
     KeyFrame *nextPtr;
     FrameType type;
-    uint32_t duration; // milliseconds
+    uint32_t duration; // microseconds
 };
 struct ColorFrame {
     KeyFrame frame;
@@ -54,28 +55,30 @@ public:
 
     void begin() { m_neoPixel.begin(); }
 
-    void setPixelRGB(int x, int y, const Color &color) {
-      if (color.transparent) return;
-      int i = 256 - (8 * x) + (x % 2 == 0 ? -8 + y :  -y - 1);
-      m_neoPixel.setPixelColor(i, color.r, color.g, color.b);
+    void setPixelRGB(int x, int y, Color color) {
+        if (color.transparent) return;
+        int i = 256 - (8 * x) + (x % 2 == 0 ? -8 + y :  -y - 1);
+        m_neoPixel.setPixelColor(i, color.r, color.g, color.b);
     }
     void setPixelGrayscale(int x, int y, uint8_t value) {
-      int i = 256 - (8 * x) + (x % 2 == 0 ? -8 + y :  -y - 1);
-      m_neoPixel.setPixelColor(i, value, value, value);
+        int i = 256 - (8 * x) + (x % 2 == 0 ? -8 + y :  -y - 1);
+        m_neoPixel.setPixelColor(i, value, value, value);
     }
 
     void setMessage(const char *message, uint32_t length); // text renders above animations
 
     void setTextScrollSpeed(float pixelsPerSecond) { m_scrollTime = (uint32_t)((1 / pixelsPerSecond) * 1000); }
     void setBackgroundColor(Color color) { m_backgroundColor = color; m_needsRefresh = true; } // sets color to show when no animation or text highlight
-    void setBrightness(uint8_t brightness) { m_neoPixel.setBrightness(brightness); }
+    void setBrightness(uint8_t brightness) { m_neoPixel.setBrightness(constrain(brightness, 0, MAX_BRIGHTNESS)); }
 
+    // duration in milliseconds
     void pushColorFrame(Color color, uint32_t duration);
+    // duration in milliseconds
     void pushImageFrame(ColorFormat format, const uint8_t *data, uint32_t duration);
     void clearAnimation();
 
     void setRepeatAnimation(bool repeat) { m_repeatAnimation = repeat; }
-    void startAnimation() { m_playingAnimation = true; m_needsRefresh = true; m_lastTimestamp = millis(); }
+    void startAnimation() { m_playingAnimation = true; m_needsRefresh = true; m_lastTimestamp = micros(); }
     void pauseAnimation() { m_playingAnimation = false; }
     void stopAnimation() { m_playingAnimation = false; setCurrentFrame(m_firstFrame); }
 
@@ -92,18 +95,18 @@ private:
 
     bool m_enabled = true;
     Color m_backgroundColor = CLEAR;
-    char m_message[256];
+    char m_message[MAX_MESSAGE_LENGTH];
     uint32_t m_messageLength = 0;
     uint32_t m_messagePixels = 0;
-    uint32_t m_scrollTimestamp = 0;
+    uint32_t m_scrollTimestamp = 0; // microseconds
     int32_t m_scrollOffset = 0; // how many pixels shifted to the left
-    uint32_t m_scrollTime = SCROLL_TIME; // milliseconds; 0 for no scroll
+    uint32_t m_scrollTime = SCROLL_TIME; // microseconds; 0 for no scroll
     
     KeyFrame *m_firstFrame = nullptr;
     KeyFrame *m_lastFrame = nullptr;
     KeyFrame *m_currentFrame = nullptr;
-    uint32_t m_animationProgress = 0;
-    uint32_t m_lastTimestamp = 0;
+    uint32_t m_animationProgress = 0; // microseconds
+    uint32_t m_lastTimestamp = 0; // microseconds
     bool m_repeatAnimation = false;
     bool m_playingAnimation = false;
     

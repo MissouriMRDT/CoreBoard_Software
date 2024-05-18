@@ -44,8 +44,6 @@ EthernetServer TCPServer(RC_ROVECOMM_ETHERNET_TCP_PORT);
 RoveCommEthernet RoveComm;
 rovecomm_packet packet;
 
-Adafruit_NeoPixel neoPixel = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL);
-
 #define DRIVE_UPDATE_PERIOD       15 // ms
 uint32_t lastDriveUpdate = 0;
 
@@ -81,6 +79,7 @@ uint8_t lastManualButtons = 0;
 Accelerometer accelerometer(ACC_SDA, ACC_SCL);
 
 PixelPainter neoPixel(NEOPIXEL);
+void showPattern(uint8_t pattern);
 
 // Methods
 void estop();

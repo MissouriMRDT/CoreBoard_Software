@@ -43,7 +43,6 @@ void setup() {
     neoPixel.begin();
     neoPixel.setBrightness(MAX_BRIGHTNESS);
 
-
     Serial.println("RoveComm Initializing...");
     RoveComm.begin(RC_COREBOARD_FIRSTOCTET, RC_COREBOARD_SECONDOCTET, RC_COREBOARD_THIRDOCTET, RC_COREBOARD_FOURTHOCTET, &TCPServer);
     Serial.println("Complete.");
@@ -73,57 +72,7 @@ void loop() {
         case RC_COREBOARD_LEDPATTERNS_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
-            neoPixel.clearAll();
-            switch(data[0])
-            {
-                case 0:
-                    //neoPixel.clearAll();
-                    break;
-                case 1:
-                    neoPixel.pushImageFrame(ColorFormat::RGB, test_image[0], 10000);
-                    neoPixel.setRepeatAnimation(true);
-                    neoPixel.startAnimation();
-                    break;
-                case 2:
-                    //neoPixel.clearAnimation();
-                    for (int i = 0; i < 64; i++) neoPixel.pushImageFrame(ColorFormat::GRAYSCALE, autonomy_image[i], 100);
-                    neoPixel.setRepeatAnimation(true);
-                    neoPixel.startAnimation();
-                    break;
-                case 3:
-                    neoPixel.setMessage("Fuck California!", 16);
-                    break;
-                case 4:
-                    neoPixel.setMessage("\\c#00ff00;\\b0Fuck\\b1 \\c#ffff00;\\h#0000ff; California! ", 54);
-                    break;
-                case 5:
-                    neoPixel.setBackgroundColor(CYAN);
-                    neoPixel.setMessage("\\b0\\c#ff0000;No Fly Zone", 24);
-                    break;
-                case 6:
-                    neoPixel.setMessage("\\b0#RoveSoHard\\b1", 17);
-                    break;
-                case 7:
-                    neoPixel.setMessage("Today, Tomorrow, Forever!", 25);
-                    break;
-                case 8:
-                    neoPixel.setBackgroundColor(Color{153, 0, 0}); // #990000 (based station color)
-                    neoPixel.setMessage("\\b0MRDT", 7);
-                    break;
-                case 9:
-                    neoPixel.setBackgroundColor(Color{23, 70, 52}); // #164734
-                    neoPixel.setMessage("\\c#bdd245;Missouri University of Science and Technology", 55);
-                    break;
-                case 10:
-                    neoPixel.setMessage(
-                      "\\h#164734;\\c#bdd245;   Missouri University of Science and Technology   \\h0;\\c#ff0000;   Mars Rover Design Team   ", 113);
-                    break;
-                case 11:
-                    neoPixel.pushImageFrame(ColorFormat::RGB, unpleasant_gradient[0], 10000);
-                    neoPixel.setRepeatAnimation(true);
-                    neoPixel.startAnimation();
-                    break;
-            }
+            showPattern(data[0]);
             break;
         }
 
@@ -159,7 +108,16 @@ void loop() {
             break;
         }
 
+        case RC_COREBOARD_LEDTEXT_DATA_ID:
+        {
+            char *data = (char*)packet.data;
+            uint32_t length = 0;
+            while (length < RC_COREBOARD_LEDTEXT_DATA_COUNT && data[length] != '\0') ++length; // count characters
+            neoPixel.setMessage(data, length);
+        }
+
     }
+
     neoPixel.update();
 
     //Gimbal Packets
@@ -356,6 +314,59 @@ void manualButtons() {
 
     lastManualButtons = manualButtons;
 
+}
+
+void showPattern(uint8_t pattern) {
+    neoPixel.clearAll();
+    switch(pattern) { // these patterns are for testing purposes
+        case 0:
+            //neoPixel.clearAll();
+            break;
+        case 1:
+            neoPixel.pushImageFrame(ColorFormat::RGB, test_image[0], 10000);
+            neoPixel.setRepeatAnimation(true);
+            neoPixel.startAnimation();
+            break;
+        case 2:
+            //neoPixel.clearAnimation();
+            for (int i = 0; i < 64; i++) neoPixel.pushImageFrame(ColorFormat::GRAYSCALE, autonomy_image[i], 100);
+            neoPixel.setRepeatAnimation(true);
+            neoPixel.startAnimation();
+            break;
+        case 3:
+            neoPixel.setMessage("Fuck California!", 16);
+            break;
+        case 4:
+            neoPixel.setMessage("\\c#00ff00;\\b0Fuck\\b1 \\c#ffff00;\\h#0000ff; California! ", 54);
+            break;
+        case 5:
+            neoPixel.setBackgroundColor(CYAN);
+            neoPixel.setMessage("\\b0\\c#ff0000;No Fly Zone", 24);
+            break;
+        case 6:
+            neoPixel.setMessage("\\b0#RoveSoHard\\b1", 17);
+            break;
+        case 7:
+            neoPixel.setMessage("Today, Tomorrow, Forever!", 25);
+            break;
+        case 8:
+            neoPixel.setBackgroundColor(Color{153, 0, 0}); // #990000 (based station color)
+            neoPixel.setMessage("\\b0MRDT", 7);
+            break;
+        case 9:
+            neoPixel.setBackgroundColor(Color{23, 70, 52}); // #164734
+            neoPixel.setMessage("\\c#bdd245;Missouri University of Science and Technology", 55);
+            break;
+        case 10:
+            neoPixel.setMessage(
+                "\\h#164734;\\c#bdd245;   Missouri University of Science and Technology   \\h0;\\c#ff0000;   \\b0Mars Rover Design Team   ", 116);
+            break;
+        case 11:
+            neoPixel.pushImageFrame(ColorFormat::RGB, unpleasant_gradient[0], 10000);
+            neoPixel.setRepeatAnimation(true);
+            neoPixel.startAnimation();
+            break;
+    }
 }
 
 void telemetry() {
