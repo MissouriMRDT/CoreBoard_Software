@@ -259,8 +259,12 @@ void PixelPainter::renderText() {
             }
             ++pos;
         } else { // wrap around if we haven't made it yet (and the message isn't short)
-            if (pos < 32 && m_messagePixels > 32)
-                reader.reset();
+            if (pos < 32) {
+                if (m_messagePixels > 32) 
+                    reader.reset();
+                else
+                    pos = 32;
+            }
         }
     }
 }
