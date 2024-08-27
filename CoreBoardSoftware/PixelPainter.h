@@ -8,7 +8,7 @@
 
 #include <RoveCommManifest.h>
 #define MAX_MESSAGE_LENGTH      RC_COREBOARD_LEDTEXT_DATA_COUNT // 256
-#define SCROLL_TIME             50000 // microseconds
+#define SCROLL_TIME             20000 // microseconds
 
 struct Color {
     uint8_t r, g, b;

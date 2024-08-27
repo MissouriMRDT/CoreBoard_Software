@@ -329,7 +329,7 @@ void showPattern(uint8_t pattern) {
             break;
         case 2:
             //neoPixel.clearAnimation();
-            for (int i = 0; i < 64; i++) neoPixel.pushImageFrame(ColorFormat::GRAYSCALE, autonomy_image[i], 100);
+            for (int i = 0; i < 64; i++) neoPixel.pushImageFrame(ColorFormat::GRAYSCALE, autonomy_image[i], 50);
             neoPixel.setRepeatAnimation(true);
             neoPixel.startAnimation();
             break;
