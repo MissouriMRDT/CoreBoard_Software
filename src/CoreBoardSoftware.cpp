@@ -44,7 +44,7 @@ void setup() {
 
 
     Serial.println("RoveComm Initializing...");
-    RoveComm.begin(RC_COREBOARD_FIRSTOCTET, RC_COREBOARD_SECONDOCTET, RC_COREBOARD_THIRDOCTET, RC_COREBOARD_FOURTHOCTET, &TCPServer);
+    RoveComm.begin(RC_COREBOARD_IPADDRESS);
     Serial.println("Complete.");
 
     servoStartups();
@@ -57,7 +57,7 @@ void loop() {
     packet = RoveComm.read();
     
     //Multimedia Packets
-    switch(packet.data_id) {
+    switch(packet.dataId) {
         
         //[R, G, B] -> [(0 - 255), (0 - 255), (0 - 255)]
         case RC_COREBOARD_LEDRGB_DATA_ID:
@@ -125,7 +125,7 @@ void loop() {
     }
 
     //Gimbal Packets
-    switch (packet.data_id) {
+    switch (packet.dataId) {
 
         // Increment left drive gimbal by [-180, 180]
         case RC_COREBOARD_LEFTDRIVEGIMBALINCREMENT_DATA_ID:
@@ -173,7 +173,7 @@ void loop() {
     }
 
     //Drive Packets
-    switch(packet.data_id) {
+    switch(packet.dataId) {
         
         //Set All Left and All Right Motors to a DutyCycle [-1, 1]
         case RC_COREBOARD_DRIVELEFTRIGHT_DATA_ID:

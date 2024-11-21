@@ -45,9 +45,8 @@ uint8_t watchdogMode = 0; // 0: Teleop, 1: Autonomy
 void feedWatchdog();
 
 //Rovecomm Declaration
-EthernetServer TCPServer(RC_ROVECOMM_ETHERNET_TCP_PORT);
 RoveCommEthernet RoveComm;
-rovecomm_packet packet;
+RoveCommPacket packet;
 
 Adafruit_NeoPixel neoPixel = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL);
 
