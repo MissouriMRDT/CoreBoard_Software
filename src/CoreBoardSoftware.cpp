@@ -279,39 +279,42 @@ void manualButtons() {
     // Servos
     switch(manualButtons)
     {
-        case LD_BUTTON: //S1
+        case DS_EN_BUTTON:  //Motors
+            break;
+
+        case LD_BUTTON:     //S1
             leftDriveServo.target += (reverse? -1 : 1);
             break;
 
-        case LP_BUTTON: //S2
+        case LP_BUTTON:     //S2
             leftPanServo.target += (reverse? -1 : 1);
             break;
 
-        case LT_BUTTON: //S3
+        case LT_BUTTON:     //S3
             leftTiltServo.target += (reverse? -1 : 1);
             break;
 
-        case RD_BUTTON: //S4
+        case RD_BUTTON:     //S4
             rightDriveServo.target += (reverse? -1 : 1);
             break;
 
-        case RP_BUTTON: //S5
+        case RP_BUTTON:     //S5
             rightPanServo.target += (reverse? -1 : 1);
             break;
 
-        case RT_BUTTON: //S6
+        case RT_BUTTON:     //S6
             rightTiltServo.target += (reverse? -1 : 1);
             break;
 
-        case BD_BUTTON: //S7
+        case BD_BUTTON:     //S7
             backDriveServo.target += (reverse? -1 : 1);
             break;
 
-        case S1_BUTTON: //S8
+        case S1_BUTTON:     //S8
             servo1.target += (reverse? -1 : 1);
             break;
 
-        case S2_BUTTON: //S9
+        case S2_BUTTON:     //S9
             servo2.target += (reverse? -1 : 1);
             break;
 

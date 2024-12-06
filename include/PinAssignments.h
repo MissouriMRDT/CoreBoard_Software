@@ -43,7 +43,15 @@
 #define B_ENC_2         41
 #define B_ENC_3         33
 
-#define REVERSE         27
+#define REVERSE         10
+
+//Switch Pins
+#define FL_Switch       38
+#define ML_Switch       27
+#define BL_Switch       26
+#define FR_Switch       12
+#define MR_Switch       40
+#define BR_Switch       39
 
 //Accelerometer Pins
 #define ACC_SDA         18
@@ -51,6 +59,8 @@
 
 // Button Assignments (Switch Number -> Encoder Number)
 // Motors
+#define DS_EN_BUTTON    8
+
 #define FL_BUTTON       14
 #define ML_BUTTON       13
 #define BL_BUTTON       12
@@ -59,13 +69,13 @@
 #define BR_BUTTON       2
 // Servos
 #define LT_BUTTON       3
-#define LP_BUTTON       4
-#define LD_BUTTON       5
-#define RT_BUTTON       9
+#define LP_BUTTON       2
+#define LD_BUTTON       1
+#define RT_BUTTON       7
 #define RP_BUTTON       10
-#define RD_BUTTON       11
-#define BD_BUTTON       8
-#define S1_BUTTON       6
-#define S2_BUTTON       7
+#define RD_BUTTON       9
+#define BD_BUTTON       6
+#define S1_BUTTON       4
+#define S2_BUTTON       5
 
 #endif
