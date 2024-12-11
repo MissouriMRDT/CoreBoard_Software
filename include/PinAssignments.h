@@ -46,12 +46,12 @@
 #define REVERSE         10
 
 //Switch Pins
-#define FL_Switch       38
-#define ML_Switch       27
-#define BL_Switch       26
-#define FR_Switch       12
-#define MR_Switch       40
-#define BR_Switch       39
+#define FL_SWITCH       38
+#define ML_SWITCH       27
+#define BL_SWITCH       26
+#define FR_SWITCH       12
+#define MR_SWITCH       40
+#define BR_SWITCH       39
 
 //Accelerometer Pins
 #define ACC_SDA         18
@@ -61,12 +61,6 @@
 // Motors
 #define DS_EN_BUTTON    8
 
-#define FL_BUTTON       14
-#define ML_BUTTON       13
-#define BL_BUTTON       12
-#define FR_BUTTON       15
-#define MR_BUTTON       1
-#define BR_BUTTON       2
 // Servos
 #define LT_BUTTON       3
 #define LP_BUTTON       2

@@ -252,34 +252,28 @@ void manualButtons() {
     bool reverse = digitalRead(REVERSE);
     uint8_t manualButtons = (digitalRead(B_ENC_3)<<3) | (digitalRead(B_ENC_2)<<2) | (digitalRead(B_ENC_1)<<1) | (digitalRead(B_ENC_0)<<0);
 
-    // FL
-    if (manualButtons == FL_BUTTON) motorTargets[0] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == FL_BUTTON) motorTargets[0] = 0;
-    
-    // ML
-    if (manualButtons == ML_BUTTON) motorTargets[1] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == ML_BUTTON) motorTargets[1] = 0;
-    
-    // BL
-    if (manualButtons == BL_BUTTON) motorTargets[2] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == BL_BUTTON) motorTargets[2] = 0;
-
-    // FR
-    if (manualButtons == FR_BUTTON) motorTargets[3] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == FR_BUTTON) motorTargets[3] = 0;
-
-    // MR
-    if (manualButtons == MR_BUTTON) motorTargets[4] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == MR_BUTTON) motorTargets[4] = 0;
-
-    // BR
-    if (manualButtons == BR_BUTTON) motorTargets[5] = (reverse? -0.5 : 0.5);
-    else if (lastManualButtons == BR_BUTTON) motorTargets[5] = 0;
-
     // Servos
     switch(manualButtons)
     {
         case DS_EN_BUTTON:  //Motors
+
+            if (digitalRead(FL_SWITCH)) motorTargets[0] = (reverse? -0.5 : 0.5);
+            else motorTargets[0] = 0;
+    
+            if (digitalRead(ML_SWITCH)) motorTargets[1] = (reverse? -0.5 : 0.5);
+            else motorTargets[1] = 0;
+
+            if (digitalRead(BL_SWITCH)) motorTargets[2] = (reverse? -0.5 : 0.5);
+            else motorTargets[2] = 0;
+
+            if (digitalRead(FR_SWITCH)) motorTargets[3] = (reverse? -0.5 : 0.5);
+            else motorTargets[3] = 0;
+
+            if (digitalRead(MR_SWITCH)) motorTargets[4] = (reverse? -0.5 : 0.5);
+            else motorTargets[4] = 0;
+
+            if (digitalRead(BR_SWITCH)) motorTargets[5] = (reverse? -0.5 : 0.5);
+            else motorTargets[5] = 0;
             break;
 
         case LD_BUTTON:     //S1
@@ -317,11 +311,7 @@ void manualButtons() {
         case S2_BUTTON:     //S9
             servo2.target += (reverse? -1 : 1);
             break;
-
     }
-
-    lastManualButtons = manualButtons;
-
 }
 
 void telemetry() {

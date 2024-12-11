@@ -79,9 +79,6 @@ CachedServo backDriveServo(90, BACK_DRIVE_MIN, BACK_DRIVE_MAX);
 
 CachedServo servo1(90, 10, 160), servo2(90, 10, 160);
 
-//Buttons Declaration
-uint8_t lastManualButtons = 0;
-
 // Accelerometer
 Accelerometer accelerometer(ACC_SDA, ACC_SCL);
 
