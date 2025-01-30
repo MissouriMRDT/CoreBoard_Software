@@ -45,7 +45,6 @@ uint8_t watchdogMode = 0; // 0: Teleop, 1: Autonomy
 void feedWatchdog();
 
 //Rovecomm Declaration
-EthernetServer TCPServer(RC_ROVECOMM_ETHERNET_TCP_PORT);
 RoveCommEthernet RoveComm;
 RoveCommPacket packet;
 

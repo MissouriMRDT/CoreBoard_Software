@@ -115,7 +115,6 @@ void loop() {
                         delay(500);
                     }
                     break;
-
             }
             break;
         }
@@ -259,6 +258,7 @@ void loop() {
 void manualButtons() {
     bool reverse = digitalRead(REVERSE);
     uint8_t manualButtons = (digitalRead(B_ENC_3)<<3) | (digitalRead(B_ENC_2)<<2) | (digitalRead(B_ENC_1)<<1) | (digitalRead(B_ENC_0)<<0);
+    //  Serial.println(manualButtons);
 
     // Servos
     switch(manualButtons)
@@ -285,6 +285,7 @@ void manualButtons() {
             break;
 
         case LD_BUTTON:     //S1
+            //  Serial.println("eeeeee");
             leftDriveServo.target += (reverse? -1 : 1);
             break;
 
