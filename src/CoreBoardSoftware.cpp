@@ -38,6 +38,14 @@ void setup() {
     pinMode(B_ENC_2, INPUT);
     pinMode(B_ENC_3, INPUT);
 
+    //Initialize Switches
+    pinMode(FL_SWITCH, INPUT_PULLDOWN);
+    pinMode(ML_SWITCH, INPUT_PULLDOWN);
+    pinMode(BL_SWITCH, INPUT_PULLDOWN);
+    pinMode(FR_SWITCH, INPUT_PULLDOWN);
+    pinMode(MR_SWITCH, INPUT_PULLDOWN);
+    pinMode(BR_SWITCH, INPUT_PULLDOWN);
+
     //Initialize NeoPixel
     neoPixel.begin();
     neoPixel.setBrightness(MAX_BRIGHTNESS);
