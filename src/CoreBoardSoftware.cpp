@@ -55,6 +55,13 @@ void setup() {
     RoveComm.begin(RC_COREBOARD_IPADDRESS);
     Serial.println("Complete.");
 
+    FL_Motor.configRampRate(100);
+    ML_Motor.configRampRate(100);
+    BL_Motor.configRampRate(100);
+    FR_Motor.configRampRate(100);
+    MR_Motor.configRampRate(100);
+    BR_Motor.configRampRate(100);
+
     servoStartups();
     feedWatchdog();
 
