@@ -3,7 +3,7 @@
 #include "CoreBoardSoftware.h"
 
 void setup() {
-    // Initialize debug serial port
+    //Initialize debug serial port
     Serial.begin(9600);
     Serial.println("CoreBoard Setup");
 
@@ -31,7 +31,17 @@ void setup() {
     BR_SERIAL.begin(115200);
     while(!(FL_SERIAL) || !(ML_SERIAL) || !(BL_SERIAL) || !(FR_SERIAL) || !(MR_SERIAL) || !(BR_SERIAL));
 
-    //Initialize Buttons
+    //Configure VESC motors
+    FL_Motor.configRampRate(2000);
+    ML_Motor.configRampRate(2000);
+    BL_Motor.configRampRate(2000);
+    FR_Motor.configRampRate(2000);
+    MR_Motor.configRampRate(2000);
+    BR_Motor.configRampRate(2000);
+
+    // TODO: configure max outputs for Autonomy
+
+    // Initialize Buttons
     pinMode(REVERSE, INPUT);
     pinMode(B_ENC_0, INPUT);
     pinMode(B_ENC_1, INPUT);
@@ -48,24 +58,18 @@ void setup() {
 
     //Initialize NeoPixel
     neoPixel.begin();
-    neoPixel.setBrightness(MAX_BRIGHTNESS);
+    neoPixel.setBrightness(MAX_BRIGHTNESS / 2);
 
-
+    //Start RoveComm
     Serial.println("RoveComm Initializing...");
     RoveComm.begin(RC_COREBOARD_IPADDRESS);
     Serial.println("Complete.");
 
-    FL_Motor.configRampRate(100);
-    ML_Motor.configRampRate(100);
-    BL_Motor.configRampRate(100);
-    FR_Motor.configRampRate(100);
-    MR_Motor.configRampRate(100);
-    BR_Motor.configRampRate(100);
-
     servoStartups();
     feedWatchdog();
 
-    accelerometer.begin();
+    // accelerometer pin got drilled out :(
+    // accelerometer.begin();
 }
 
 void loop() {
@@ -263,7 +267,7 @@ void loop() {
 }
 
 void manualButtons() {
-    bool reverse = digitalRead(REVERSE);
+    bool reverse = !digitalRead(REVERSE); // switch is backwards
     uint8_t manualButtons = (digitalRead(B_ENC_3)<<3) | (digitalRead(B_ENC_2)<<2) | (digitalRead(B_ENC_1)<<1) | (digitalRead(B_ENC_0)<<0);
     //  Serial.println(manualButtons);
 
@@ -331,8 +335,8 @@ void manualButtons() {
 }
 
 void telemetry() {
-    accelerometer.read();
-    RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_COREBOARD_ACCELEROMETERDATA_DATA_COUNT, accelerometer.acceleration);
+    // accelerometer.read();
+    // RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_COREBOARD_ACCELEROMETERDATA_DATA_COUNT, accelerometer.acceleration);
 }
 
 void servoStartups() {
