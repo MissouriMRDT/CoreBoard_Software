@@ -258,7 +258,6 @@ void loop() {
 void manualButtons() {
     bool reverse = digitalRead(REVERSE);
     uint8_t manualButtons = (digitalRead(B_ENC_3)<<3) | (digitalRead(B_ENC_2)<<2) | (digitalRead(B_ENC_1)<<1) | (digitalRead(B_ENC_0)<<0);
-    //  Serial.println(manualButtons);
 
     // Servos
     switch(manualButtons)
@@ -285,7 +284,6 @@ void manualButtons() {
             break;
 
         case LD_BUTTON:     //S1
-            //  Serial.println("eeeeee");
             leftDriveServo.target += (reverse? -1 : 1);
             break;
 
@@ -359,6 +357,36 @@ void servoStartups() {
     backDriveServo.write(20);
 
     delay(50);
+}
+
+void driveMode(bool isTeleop) {
+    if(isTeleop) {
+        FL_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        FL_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
+        ML_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        ML_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
+        BL_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        BL_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
+        FR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        FR_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
+        MR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        MR_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
+        BR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        BR_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
+    } else {
+        FL_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        FL_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        ML_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        ML_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        BL_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        BL_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        FR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        FR_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        MR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        MR_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        BR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
+        BR_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+    }
 }
 
 void estop() {   

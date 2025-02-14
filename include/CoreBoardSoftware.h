@@ -13,9 +13,11 @@
 #define MAX_BRIGHTNESS          70
 #define LED_COUNT               256
 
-#define DRIVE_MIN_RPM           2000
-#define DRIVE_MAX_RPM           30000
-#define DRIVE_MAX_RAMP          0.005
+#define TELEOP_MAX_SPEED        1000
+#define TELEOP_MIN_SPEED        0
+#define TELEOP_MAX_RAMP_RATE    
+#define AUTONOMY_MAX_SPEED      300
+#define AUTONOMY_MAX_RAMP_RATE  
 
 #define LEFT_DRIVE_MIN          0
 #define LEFT_PAN_MIN            0
@@ -49,6 +51,9 @@ RoveCommEthernet RoveComm;
 RoveCommPacket packet;
 
 Adafruit_NeoPixel neoPixel(LED_COUNT, NEOPIXEL);
+
+//
+void driveMode(bool isTeleop);
 
 #define DRIVE_UPDATE_PERIOD       15 // ms
 uint32_t lastDriveUpdate = 0;
