@@ -46,7 +46,7 @@ bool watchdogOverride = false;
 uint8_t watchdogMode = 0; // 0: Teleop, 1: Autonomy
 void feedWatchdog();
 
-//Rovecomm Declaration
+// Rovecomm Declaration
 RoveCommEthernet RoveComm;
 RoveCommPacket packet;
 
@@ -68,7 +68,6 @@ RoveVESC BR_Motor(&BR_SERIAL);
 
 //All wheels are in order of FL, ML, BL, FR, MR, BR
 float motorTargets[6] = {0, 0, 0, 0, 0, 0}; // -1.0 to 1.0
-int16_t motorCurrent[6] = {0, 0, 0, 0, 0, 0};
 
 //Servo Declarations - Three 9-pin Connectors each with Three Servos
 CachedServo leftDriveServo(90, LEFT_DRIVE_MIN, LEFT_DRIVE_MAX);
