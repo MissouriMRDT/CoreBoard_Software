@@ -14,10 +14,9 @@
 #define LED_COUNT               256
 
 #define TELEOP_MAX_SPEED        1000
-#define TELEOP_MIN_SPEED        0
-#define TELEOP_MAX_RAMP_RATE    
+#define TELEOP_MAX_RAMP_RATE    2000
 #define AUTONOMY_MAX_SPEED      300
-#define AUTONOMY_MAX_RAMP_RATE  
+#define AUTONOMY_MAX_RAMP_RATE  0
 
 #define LEFT_DRIVE_MIN          0
 #define LEFT_PAN_MIN            0
@@ -52,7 +51,7 @@ RoveCommPacket packet;
 
 Adafruit_NeoPixel neoPixel(LED_COUNT, NEOPIXEL);
 
-//
+//Drive Mode Set Ramp Rates and Max Speed
 void driveMode(bool isTeleop);
 
 #define DRIVE_UPDATE_PERIOD       15 // ms

@@ -31,17 +31,10 @@ void setup() {
     BR_SERIAL.begin(115200);
     while(!(FL_SERIAL) || !(ML_SERIAL) || !(BL_SERIAL) || !(FR_SERIAL) || !(MR_SERIAL) || !(BR_SERIAL));
 
-    //Configure VESC motors
-    FL_Motor.configRampRate(2000);
-    ML_Motor.configRampRate(2000);
-    BL_Motor.configRampRate(2000);
-    FR_Motor.configRampRate(2000);
-    MR_Motor.configRampRate(2000);
-    BR_Motor.configRampRate(2000);
+    //Initialize Drive Mode
+    driveMode(true);
 
-    // TODO: configure max outputs for Autonomy
-
-    // Initialize Buttons
+    //Initialize Buttons
     pinMode(REVERSE, INPUT);
     pinMode(B_ENC_0, INPUT);
     pinMode(B_ENC_1, INPUT);
@@ -108,11 +101,13 @@ void loop() {
                 case TELEOP:
                     neoPixel.fill(neoPixel.Color(0, 0, 255));
                     neoPixel.show();
+                    driveMode(true);
                     break;
                 
                 case AUTONOMY:
                     neoPixel.fill(neoPixel.Color(255, 0, 0));
                     neoPixel.show();
+                    driveMode(false);
                     break;
 
                 case REACHED_GOAL:
@@ -371,32 +366,32 @@ void servoStartups() {
 }
 
 void driveMode(bool isTeleop) {
-    if(isTeleop) {
-        FL_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        FL_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
-        ML_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        ML_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
-        BL_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        BL_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
-        FR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        FR_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
-        MR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        MR_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
-        BR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        BR_Motor.configMaxOutputs(TELEOP_MIN_SPEED, TELEOP_MAX_SPEED);
+    if (isTeleop) {
+        FL_Motor.configRampRate(TELEOP_MAX_RAMP_RATE);
+        FL_Motor.configMaxOutputs(-TELEOP_MAX_SPEED, TELEOP_MAX_SPEED);
+        ML_Motor.configRampRate(TELEOP_MAX_RAMP_RATE);
+        ML_Motor.configMaxOutputs(-TELEOP_MAX_SPEED, TELEOP_MAX_SPEED);
+        BL_Motor.configRampRate(TELEOP_MAX_RAMP_RATE);
+        BL_Motor.configMaxOutputs(-TELEOP_MAX_SPEED, TELEOP_MAX_SPEED);
+        FR_Motor.configRampRate(TELEOP_MAX_RAMP_RATE);
+        FR_Motor.configMaxOutputs(-TELEOP_MAX_SPEED, TELEOP_MAX_SPEED);
+        MR_Motor.configRampRate(TELEOP_MAX_RAMP_RATE);
+        MR_Motor.configMaxOutputs(-TELEOP_MAX_SPEED, TELEOP_MAX_SPEED);
+        BR_Motor.configRampRate(TELEOP_MAX_RAMP_RATE);
+        BR_Motor.configMaxOutputs(-TELEOP_MAX_SPEED, TELEOP_MAX_SPEED);
     } else {
         FL_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        FL_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        FL_Motor.configMaxOutputs(-AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
         ML_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        ML_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        ML_Motor.configMaxOutputs(-AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
         BL_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        BL_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        BL_Motor.configMaxOutputs(-AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
         FR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        FR_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        FR_Motor.configMaxOutputs(-AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
         MR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        MR_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        MR_Motor.configMaxOutputs(-AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
         BR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        BR_Motor.configMaxOutputs(AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+        BR_Motor.configMaxOutputs(-AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
     }
 }
 
