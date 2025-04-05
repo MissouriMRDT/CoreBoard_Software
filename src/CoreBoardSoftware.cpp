@@ -42,12 +42,12 @@ void setup() {
     pinMode(B_ENC_3, INPUT);
 
     //Initialize Switches
-    pinMode(FL_SWITCH, INPUT_PULLDOWN);
-    pinMode(ML_SWITCH, INPUT_PULLDOWN);
-    pinMode(BL_SWITCH, INPUT_PULLDOWN);
-    pinMode(FR_SWITCH, INPUT_PULLDOWN);
-    pinMode(MR_SWITCH, INPUT_PULLDOWN);
-    pinMode(BR_SWITCH, INPUT_PULLDOWN);
+    pinMode(FL_SWITCH, INPUT);
+    pinMode(ML_SWITCH, INPUT);
+    pinMode(BL_SWITCH, INPUT);
+    pinMode(FR_SWITCH, INPUT);
+    pinMode(MR_SWITCH, INPUT);
+    pinMode(BR_SWITCH, INPUT);
 
     //Initialize NeoPixel
     neoPixel.begin();
@@ -61,8 +61,7 @@ void setup() {
     servoStartups();
     feedWatchdog();
 
-    // accelerometer pin got drilled out :(
-    // accelerometer.begin();
+    accelerometer.begin();
 }
 
 void loop() {
@@ -328,8 +327,8 @@ void manualButtons() {
 }
 
 void telemetry() {
-    // accelerometer.read();
-    // RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_COREBOARD_ACCELEROMETERDATA_DATA_COUNT, accelerometer.acceleration);
+    accelerometer.read();
+    RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_COREBOARD_ACCELEROMETERDATA_DATA_COUNT, accelerometer.acceleration);
 }
 
 void servoStartups() {
