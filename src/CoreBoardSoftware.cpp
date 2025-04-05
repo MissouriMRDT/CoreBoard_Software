@@ -230,7 +230,7 @@ void loop() {
 
     uint32_t now = millis();
     
-    if (lastDriveUpdate - now >= DRIVE_UPDATE_PERIOD) {
+    if (now - lastDriveUpdate >= DRIVE_UPDATE_PERIOD) {
         manualButtons();
 
         // because drive() also does speed ramping, we can't do caching like for the servos
@@ -255,7 +255,7 @@ void loop() {
         lastDriveUpdate = now;
     }
 
-    if (lastTelemetry - now >= TELEMETRY_PERIOD) {
+    if (now - lastTelemetry >= TELEMETRY_PERIOD) {
         telemetry();
         lastTelemetry = now;
     }
