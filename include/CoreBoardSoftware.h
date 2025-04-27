@@ -21,20 +21,20 @@
 #define LEFT_DRIVE_MIN          0
 #define LEFT_PAN_MIN            0
 #define LEFT_TILT_MIN           0
-#define RIGHT_DRIVE_MIN         40
+#define RIGHT_DRIVE_MIN         0
 #define RIGHT_PAN_MIN           0
 #define RIGHT_TILT_MIN          0
 #define BACK_DRIVE_MIN          0
 
-#define LEFT_DRIVE_MAX          140
+#define LEFT_DRIVE_MAX          180
 #define LEFT_PAN_MAX            180
 #define LEFT_TILT_MAX           180
 #define RIGHT_DRIVE_MAX         180
 #define RIGHT_PAN_MAX           180
 #define RIGHT_TILT_MAX          180
-#define BACK_DRIVE_MAX          140
+#define BACK_DRIVE_MAX          180
 
-#define TELEMETRY_PERIOD        500 // ms
+#define TELEMETRY_PERIOD        750 // ms
 uint32_t lastTelemetry = 0;
 void telemetry();
 
@@ -66,7 +66,12 @@ RoveVESC MR_Motor(&MR_SERIAL);
 RoveVESC BR_Motor(&BR_SERIAL);
 
 //All wheels are in order of FL, ML, BL, FR, MR, BR
-float motorTargets[6] = {0, 0, 0, 0, 0, 0}; // -1.0 to 1.0
+float motorTargets[6] = {0}; // -1.0 to 1.0
+
+//For telemetry
+float motorSpeeds[6] = {0};
+float motorCurrents[6] = {0};
+float vescCurrents[6] = {0};
 
 //Servo Declarations - Three 9-pin Connectors each with Three Servos
 CachedServo leftDriveServo(90, LEFT_DRIVE_MIN, LEFT_DRIVE_MAX);

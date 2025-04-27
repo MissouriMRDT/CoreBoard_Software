@@ -197,8 +197,9 @@ void loop() {
             float leftSpeed = data[0];
             float rightSpeed = data[1];
 
-            for(int i = 0; i < 6; i++) 
+            for(int i = 0; i < 6; i++) {
                 motorTargets[i] = (i < 3) ? leftSpeed : rightSpeed;
+            }
 
             feedWatchdog();
             break;
@@ -328,7 +329,23 @@ void manualButtons() {
 
 void telemetry() {
     accelerometer.read();
+
+    // hack
+    RoveVESC *motors[6] = {&FL_Motor, &ML_Motor, &BL_Motor, &FR_Motor, &MR_Motor, &BR_Motor};
+    for (int i = 0; i < 6; i++) {
+        VescValues values = motors[i]->getVescTelemetry();
+        motorSpeeds[i] = values.rpm;
+        motorCurrents[i] = values.avgMotorCurrent;
+        vescCurrents[i] = values.avgInputCurrent;
+        if (values.error) {
+            RoveComm.write(RC_COREBOARD_VESCFAULT_DATA_ID, (uint8_t)values.error);
+        }
+    }
+
     RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, RC_COREBOARD_ACCELEROMETERDATA_DATA_COUNT, accelerometer.acceleration);
+    // RoveComm.write(RC_COREBOARD_MOTORSPEEDS_DATA_ID, RC_COREBOARD_MOTORSPEEDS_DATA_COUNT, motorSpeeds);
+    RoveComm.write(RC_COREBOARD_MOTORCURRENTS_DATA_ID, RC_COREBOARD_MOTORCURRENTS_DATA_COUNT, motorCurrents);
+    RoveComm.write(RC_COREBOARD_VESCCURRENTS_DATA_ID, RC_COREBOARD_VESCCURRENTS_DATA_COUNT, vescCurrents);
 }
 
 void servoStartups() {
@@ -394,12 +411,15 @@ void driveMode(bool isTeleop) {
     }
 }
 
-void estop() {   
+void estop() {
     if(!watchdogOverride) {
         for(int i = 0; i < 6; i++) {
             motorTargets[i] = 0;
+            motorSpeeds[i] = 0;
+            motorCurrents[i] = 0;
+            vescCurrents[i] = 0;
         }
-    }   
+    }
 }
 
 void feedWatchdog() {
