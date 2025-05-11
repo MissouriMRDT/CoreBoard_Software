@@ -24,7 +24,7 @@ void setup() {
     RoveVESC *motors[6] = { &FL_Motor, &ML_Motor, &BL_Motor, &FR_Motor, &MR_Motor, &BR_Motor };
     for (RoveVESC *motor : motors) {
         motor->setPoles(14);
-        motor->setGearRatio(9); // 9 : 1 input/output
+        motor->setGearRatio(36); // 36 : 1 input/output
         motor->setMaxRPM(840); // About 30 mph
     }
 
