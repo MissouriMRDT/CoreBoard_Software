@@ -10,6 +10,8 @@
 
 #include <Adafruit_NeoPixel.h>
 
+#define USE_RPM_CONTROL 0
+
 #define MAX_BRIGHTNESS          70
 #define LED_COUNT               256
 

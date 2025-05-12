@@ -21,12 +21,14 @@ void setup() {
     servo1.attach(SERVO_9, 500, 2500);
     servo2.attach(SERVO_8, 500, 2500);
 
+#if USE_RPM_CONTROL
     RoveVESC *motors[6] = { &FL_Motor, &ML_Motor, &BL_Motor, &FR_Motor, &MR_Motor, &BR_Motor };
     for (RoveVESC *motor : motors) {
-        motor->setPoles(14);
-        motor->setGearRatio(36); // 36 : 1 input/output
-        motor->setMaxRPM(840); // About 30 mph
+        motor->configMotorPoles(14);
+        motor->configGearRatio(36); // 36 : 1 input/output
+        motor->configMaxRPM(840); // About 30 mph
     }
+#endif
 
     //Initialize VESC serial ports
     FL_SERIAL.begin(115200);
@@ -239,6 +241,7 @@ void loop() {
     if (now - lastDriveUpdate >= DRIVE_UPDATE_PERIOD) {
         manualButtons();
 
+#if USE_RPM_CONTROL
         // because drive() also does speed ramping, we can't do caching like for the servos
         // convert to decipercent so RoveVESC can convert BACK to a float
         FL_Motor.driveRPM(motorTargets[0]);
@@ -247,6 +250,14 @@ void loop() {
         FR_Motor.driveRPM(motorTargets[3]);
         MR_Motor.driveRPM(motorTargets[4]);
         BR_Motor.driveRPM(motorTargets[5]);
+#else
+        FL_Motor.drive((int16_t)(motorTargets[0] * 1000));
+        ML_Motor.drive((int16_t)(motorTargets[1] * 1000));
+        BL_Motor.drive((int16_t)(motorTargets[2] * 1000));
+        FR_Motor.drive((int16_t)(motorTargets[3] * 1000));
+        MR_Motor.drive((int16_t)(motorTargets[4] * 1000));
+        BR_Motor.drive((int16_t)(motorTargets[5] * 1000));
+#endif
 
         leftDriveServo.write();
         leftPanServo.write();
