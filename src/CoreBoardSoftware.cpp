@@ -82,8 +82,12 @@ void loop() {
         case RC_COREBOARD_LEDRGB_DATA_ID:
         {
             uint8_t* data = (uint8_t*)packet.data;
-            neoPixel.fill(neoPixel.Color(data[0], data[1], data[2]));
-            neoPixel.show();
+            customDisplayColor = neoPixel.Color(data[0], data[1], data[2]);
+            if (customDisplayColor == 0x000000) { // Black
+                setDisplayState(DisplayState::OFF);
+            } else {
+                setDisplayState(DisplayState::CUSTOM);
+            }
             break;
         }
 
@@ -106,27 +110,17 @@ void loop() {
             switch (data[0])
             {
                 case TELEOP:
-                    neoPixel.fill(neoPixel.Color(0, 0, 255));
-                    neoPixel.show();
+                    setDisplayState(DisplayState::TELEOP);
                     driveMode(true);
                     break;
                 
                 case AUTONOMY:
-                    neoPixel.fill(neoPixel.Color(255, 0, 0));
-                    neoPixel.show();
+                    setDisplayState(DisplayState::AUTONOMY);
                     driveMode(false);
                     break;
 
                 case REACHED_GOAL:
-                    for(uint8_t i = 0; i < 5; i++)
-                    {
-                        neoPixel.fill(neoPixel.Color(0, 255, 0));
-                        neoPixel.show();
-                        delay(500);
-                        neoPixel.clear();
-                        neoPixel.show();
-                        delay(500);
-                    }
+                    setDisplayState(DisplayState::REACHED_GOAL);
                     break;
             }
             break;
@@ -275,6 +269,11 @@ void loop() {
     if (now - lastTelemetry >= TELEMETRY_PERIOD) {
         telemetry();
         lastTelemetry = now;
+    }
+
+    if (now - lastLightingPanelUpdate >= LIGHTING_PANEL_UPDATE_PERIOD) {
+        updateLightingPanel();
+        lastLightingPanelUpdate = now;
     }
 }
 
@@ -426,6 +425,45 @@ void driveMode(bool isTeleop) {
         BR_Motor.configRampRate(AUTONOMY_MAX_RAMP_RATE);
         BR_Motor.configMaxOutputs(-AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
     }
+}
+
+void setDisplayState(DisplayState newState) {
+    displayState = newState;
+    lightingPanelChanged = true;
+    displayStateProgress = 0;
+}
+
+void updateLightingPanel() {
+    switch (displayState) {
+        case DisplayState::OFF:
+            neoPixel.clear();
+            break;
+        case DisplayState::TELEOP:
+            neoPixel.fill(0x0000FF); // Blue
+            break;
+        case DisplayState::AUTONOMY:
+            neoPixel.fill(0xFF0000); // Red
+            break;
+        case DisplayState::REACHED_GOAL:
+        {
+            uint32_t lastColor = neoPixel.getPixelColor(0);
+            uint32_t nextColor = (displayStateProgress / 4000) % 2 == 0 ? 0x00FF00 : 0x000000; // Blink green each second
+            if (lastColor != nextColor) {
+                lightingPanelChanged = true;
+            }
+            neoPixel.fill(nextColor);
+            break;
+        }
+        case DisplayState::CUSTOM:
+            neoPixel.fill(customDisplayColor);
+            break;
+    }
+    if (lightingPanelChanged) {
+        neoPixel.show(); // this takes like 7ms so we want to call it as little as possible.
+        lightingPanelChanged = false;
+    }
+
+    displayStateProgress += LIGHTING_PANEL_UPDATE_PERIOD;
 }
 
 void estop() {
