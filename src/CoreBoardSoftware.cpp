@@ -447,7 +447,7 @@ void updateLightingPanel() {
         case DisplayState::REACHED_GOAL:
         {
             uint32_t lastColor = neoPixel.getPixelColor(0);
-            uint32_t nextColor = (displayStateProgress / 4000) % 2 == 0 ? 0x00FF00 : 0x000000; // Blink green each second
+            uint32_t nextColor = (displayStateProgress / 1000) % 2 == 0 ? 0x00FF00 : 0x000000; // Blink green each second
             if (lastColor != nextColor) {
                 lightingPanelChanged = true;
             }
