@@ -72,18 +72,24 @@ void loop() {
     RoveComm.read(packet);
     switch (packet.dataId) {
         case RC_COREBOARD_DRIVELEFTRIGHT_DATA_ID:
+        {
+            float *farray = (float*)packet.data;
             for (int i = 0; i < 3; i++) {
-                wheelSpeeds[i] = packet.fdata[0];
-                wheelSpeeds[i + 3] = packet.fdata[1];
+                wheelSpeeds[i] = farray[0];
+                wheelSpeeds[i + 3] = farray[1];
             }
             feedWatchdog();
             break;
+        }
         case RC_COREBOARD_DRIVEINDIVIDUAL_DATA_ID:
+        {
+            float *farray = (float*)packet.data;
             for (int i = 0; i < 6; i++) {
-                wheelSpeeds[i] = packet.fdata[i];
+                wheelSpeeds[i] = farray[i];
             }
             feedWatchdog();
             break;
+        }
         case RC_COREBOARD_LEFTGIMBAL_DATA_ID:
             LeftPan.write(packet.i16data[0]);
             LeftTilt.write(packet.i16data[1]);
@@ -110,7 +116,7 @@ void loop() {
         for (int i = 0; i < 6; i++) {
             motors[i]->drive((int)(wheelSpeeds[i] * 1000));
         }
-        nextDriveUpdate += TELEMETRY_PERIOD;
+        nextDriveUpdate += 50;
     }
 }
 
@@ -145,8 +151,6 @@ void handleButtons() {
                     } else if (!digitalRead(DIR_BACK)) {
                         wheelSpeeds[i] = -0.5f;
                         feedWatchdog();
-                    } else {
-                        wheelSpeeds[i] = 0.0f;
                     }
                 }
             }
@@ -189,7 +193,7 @@ void driveMode(bool isTeleop) {
 void telemetry() {
     RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, 3, accelerometer.acceleration);
     // TODO: measure temperature and fan speeds
-    // float motorSpeeds[6];
+    float motorSpeeds[6];
     float motorCurrents[6];
     float vescCurrents[6];
     for (int i = 0; i < 6; i++) {
@@ -202,7 +206,7 @@ void telemetry() {
             RoveComm.write(RC_COREBOARD_VESCFAULT_DATA_ID, 2, errorData);
         }
     }
-    // RoveComm.write(RC_COREBOARD_MOTORSPEEDS_DATA_ID, RC_COREBOARD_MOTORSPEEDS_DATA_COUNT, motorSpeeds);
+    RoveComm.write(RC_COREBOARD_MOTORSPEEDS_DATA_ID, RC_COREBOARD_MOTORSPEEDS_DATA_COUNT, motorSpeeds);
     RoveComm.write(RC_COREBOARD_MOTORCURRENTS_DATA_ID, RC_COREBOARD_MOTORCURRENTS_DATA_COUNT, motorCurrents);
     RoveComm.write(RC_COREBOARD_VESCCURRENTS_DATA_ID, RC_COREBOARD_VESCCURRENTS_DATA_COUNT, vescCurrents);
 }
