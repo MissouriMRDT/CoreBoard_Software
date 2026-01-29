@@ -2,77 +2,17 @@
 #define COREBOARD_SOFTWARE_H
 
 #include "PinAssignments.h"
-#include "CachedServo.h"
 #include "Accelerometer.h"
 
 #include <RoveComm.h>
 #include <RoveVESC.h>
 
 #include <Adafruit_NeoPixel.h>
+#include <PWMServo.h>
 
-#define USE_RPM_CONTROL 0
+//[FL, ML, BL, FR, MR, BR]
+float wheelSpeeds[6] = {0};
 
-#define MAX_BRIGHTNESS          70
-#define LED_COUNT               256
-
-#define TELEOP_MAX_SPEED        1000
-#define TELEOP_MAX_RAMP_RATE    2000
-#define AUTONOMY_MAX_SPEED      1000
-#define AUTONOMY_MAX_RAMP_RATE  0 // Disable ramping for Autonomy
-
-#define LEFT_DRIVE_MIN          0
-#define LEFT_PAN_MIN            0
-#define LEFT_TILT_MIN           0
-#define RIGHT_DRIVE_MIN         0
-#define RIGHT_PAN_MIN           0
-#define RIGHT_TILT_MIN          0
-#define BACK_DRIVE_MIN          0
-
-#define LEFT_DRIVE_MAX          180
-#define LEFT_PAN_MAX            180
-#define LEFT_TILT_MAX           180
-#define RIGHT_DRIVE_MAX         180
-#define RIGHT_PAN_MAX           180
-#define RIGHT_TILT_MAX          180
-#define BACK_DRIVE_MAX          180
-
-#define TELEMETRY_PERIOD        750 // ms
-uint32_t lastTelemetry = 0;
-void telemetry();
-
-#define WATCHDOG_TIMEOUT_TELEOP         300000
-#define WATCHDOG_TIMEOUT_AUTONOMY       1500000
-IntervalTimer watchdog;
-bool watchdogOverride = false;
-uint8_t watchdogMode = 0; // 0: Teleop, 1: Autonomy
-void feedWatchdog();
-
-// Rovecomm Declaration
-RoveCommEthernet RoveComm;
-RoveCommPacket packet;
-
-// This will eventually be phased out in favor of the RoveLighting library which runs its own state machine
-enum class DisplayState {
-    OFF, TELEOP, AUTONOMY, REACHED_GOAL, CUSTOM
-};
-DisplayState displayState = DisplayState::OFF;
-uint32_t customDisplayColor = 0x000000; // Adafruit_NeoPixel::Color(r, g, b) -> int
-void setDisplayState(DisplayState newState);
-uint32_t displayStateProgress = 0;
-
-Adafruit_NeoPixel neoPixel(LED_COUNT, NEOPIXEL);
-void updateLightingPanel();
-uint32_t lastLightingPanelUpdate = 0;
-bool lightingPanelChanged = true;
-#define LIGHTING_PANEL_UPDATE_PERIOD 100 // ms
-
-//Drive Mode Set Ramp Rates and Max Speed
-void driveMode(bool isTeleop);
-
-#define DRIVE_UPDATE_PERIOD       15 // ms
-uint32_t lastDriveUpdate = 0;
-
-//Vesc Serial Declaration
 RoveVESC FL_Motor(&FL_SERIAL);
 RoveVESC ML_Motor(&ML_SERIAL);
 RoveVESC BL_Motor(&BL_SERIAL);
@@ -80,33 +20,15 @@ RoveVESC FR_Motor(&FR_SERIAL);
 RoveVESC MR_Motor(&MR_SERIAL);
 RoveVESC BR_Motor(&BR_SERIAL);
 
-//All wheels are in order of FL, ML, BL, FR, MR, BR
-float motorTargets[6] = {0}; // -1.0 to 1.0
+PWMServo Spare1;
+PWMServo Spare2;
+PWMServo LeftPan;
+PWMServo LeftTilt;
+PWMServo BackPan;
+PWMServo BackTilt;
+PWMServo RightPan;
+PWMServo RightTilt;
 
-//For telemetry
-float motorSpeeds[6] = {0};
-float motorCurrents[6] = {0};
-float vescCurrents[6] = {0};
-
-//Servo Declarations - Three 9-pin Connectors each with Three Servos
-CachedServo leftDriveServo(90, LEFT_DRIVE_MIN, LEFT_DRIVE_MAX);
-CachedServo leftPanServo(90, LEFT_PAN_MIN, LEFT_PAN_MAX);
-CachedServo leftTiltServo(90, LEFT_TILT_MIN, LEFT_TILT_MAX);
-
-CachedServo rightDriveServo(90, RIGHT_DRIVE_MIN, RIGHT_DRIVE_MAX);
-CachedServo rightPanServo(90, RIGHT_PAN_MIN, RIGHT_PAN_MAX);
-CachedServo rightTiltServo(90, RIGHT_TILT_MIN, RIGHT_TILT_MAX);
-
-CachedServo backDriveServo(90, BACK_DRIVE_MIN, BACK_DRIVE_MAX);
-
-CachedServo servo1(90, 10, 160), servo2(90, 10, 160);
-
-// Accelerometer
-Accelerometer accelerometer(ACC_SDA, ACC_SCL);
-
-// Methods
-void estop();
-void servoStartups();
-void manualButtons();
+RoveCommEthernet RoveComm;
 
 #endif
