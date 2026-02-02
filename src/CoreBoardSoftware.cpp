@@ -23,7 +23,7 @@ void setup() {
     while(!(FL_SERIAL) || !(ML_SERIAL) || !(BL_SERIAL) || !(FR_SERIAL) || !(MR_SERIAL) || !(BR_SERIAL));
 
     // initialize Drive Mode
-    driveMode(true);
+    setDriveMode(DriveMode::TELEOP);
 
     // servos
     Spare1.attach(SPARE_1_SERVO);
@@ -57,9 +57,11 @@ void setup() {
     RoveComm.begin(RC_COREBOARD_IPADDRESS);
 
     backPanel.begin();
+    backPanel.setBrightness(MAX_BRIGHTNESS);
+    innerStrip.begin();
+    innerStrip.setBrightness(MAX_BRIGHTNESS);
 
     nextTelemetry = millis();
-    nextDriveUpdate = millis();
 
     feedWatchdog();
 }
@@ -72,24 +74,20 @@ void loop() {
     RoveComm.read(packet);
     switch (packet.dataId) {
         case RC_COREBOARD_DRIVELEFTRIGHT_DATA_ID:
-        {
-            float *farray = (float*)packet.data;
             for (int i = 0; i < 3; i++) {
-                wheelSpeeds[i] = farray[0];
-                wheelSpeeds[i + 3] = farray[1];
+                wheelSpeeds[i] = packet.fdata[0];
+                wheelSpeeds[i + 3] = packet.fdata[1];
             }
+            driveWheels();
             feedWatchdog();
             break;
-        }
         case RC_COREBOARD_DRIVEINDIVIDUAL_DATA_ID:
-        {
-            float *farray = (float*)packet.data;
             for (int i = 0; i < 6; i++) {
-                wheelSpeeds[i] = farray[i];
+                wheelSpeeds[i] = packet.fdata[i];
             }
+            driveWheels();
             feedWatchdog();
             break;
-        }
         case RC_COREBOARD_LEFTGIMBAL_DATA_ID:
             LeftPan.write(packet.i16data[0]);
             LeftTilt.write(packet.i16data[1]);
@@ -105,6 +103,32 @@ void loop() {
         case RC_COREBOARD_WATCHDOGOVERRIDE_DATA_ID:
             watchdogOverride = packet.u8data[0];
             break;
+        case RC_COREBOARD_SETWATCHDOGMODE_DATA_ID:
+            setDriveMode((DriveMode)packet.u8data[0]);
+            break;
+        case RC_COREBOARD_STATEDISPLAY_DATA_ID:
+            switch ((COREBOARD_DISPLAYSTATE)packet.u8data[0]) {
+                case TELEOP:
+                    setDisplayState(DisplayState::TELEOP);
+                    break;
+                case AUTONOMY:
+                    setDisplayState(DisplayState::AUTONOMY);
+                    break;
+                case REACHED_GOAL:
+                    setDisplayState(DisplayState::REACHED_GOAL);
+                    break;
+            }
+        case RC_COREBOARD_BRIGHTNESS_DATA_ID:
+            backPanel.setBrightness(packet.u8data[0]);
+            innerStrip.setBrightness(packet.u8data[0]);
+            break;
+        case RC_COREBOARD_LEDRGB_DATA_ID:
+            setDisplayState(DisplayState::CUSTOM);
+            customDisplayColor = Adafruit_NeoPixel::Color(packet.u8data[0], packet.u8data[1], packet.u8data[2]);
+            break;
+        case RC_COREBOARD_INTERNALRGB_DATA_ID:
+            innerStrip.fill(Adafruit_NeoPixel::Color(packet.u8data[0], packet.u8data[1], packet.u8data[2]));
+            break;
     }
 
     if (millis() >= nextTelemetry) {
@@ -112,12 +136,9 @@ void loop() {
         nextTelemetry += TELEMETRY_PERIOD;
     }
 
-    if (millis() >= nextDriveUpdate) {
-        for (int i = 0; i < 6; i++) {
-            motors[i]->drive((int)(wheelSpeeds[i] * 1000));
-        }
-        nextDriveUpdate += 50;
-    }
+    updateLightingPanel();
+
+    delay(10);
 }
 
 void handleButtons() {
@@ -143,16 +164,32 @@ void handleButtons() {
         case 6:
         {
             const int switches[] = {FL_SWITCH, ML_SWITCH, BL_SWITCH, FR_SWITCH, MR_SWITCH, BR_SWITCH};
-            for (int i = 0; i < 6; i++) {
-                if (digitalRead(switches[i])) {
-                    if (!digitalRead(DIR_FORWARD)) {
-                        wheelSpeeds[i] = 0.5f;
-                        feedWatchdog();
-                    } else if (!digitalRead(DIR_BACK)) {
-                        wheelSpeeds[i] = -0.5f;
-                        feedWatchdog();
-                    }
+            bool forward = !digitalRead(DIR_FORWARD);
+            bool back = !digitalRead(DIR_BACK);
+            bool left = !digitalRead(DIR_LEFT);
+            bool right = !digitalRead(DIR_RIGHT);
+            if (forward && !back) {
+                for (int i = 0; i < 6; i++) {
+                    wheelSpeeds[i] = digitalRead(switches[i]) ? 0.5f : 0;
                 }
+            } else if (back && !forward) {
+                for (int i = 0; i < 6; i++) {
+                    wheelSpeeds[i] = digitalRead(switches[i]) ? -0.5f : 0;
+                }
+            } else if (left && !right) {
+                for (int i = 0; i < 3; i++) {
+                    wheelSpeeds[i] = digitalRead(switches[i]) ? -0.5f : 0;
+                    wheelSpeeds[i] = digitalRead(switches[i + 3]) ? 0.5f : 0;
+                }
+            } else if (right && !left) {
+                for (int i = 0; i < 3; i++) {
+                    wheelSpeeds[i] = digitalRead(switches[i]) ? 0.5f : 0;
+                    wheelSpeeds[i] = digitalRead(switches[i + 3]) ? -0.5f : 0;
+                }
+            }
+            if (forward || back || left || right) {
+                driveWheels();
+                feedWatchdog();
             }
             break;
         }
@@ -176,18 +213,28 @@ void driveMast(PWMServo& pan, PWMServo& tilt) {
     }
 }
 
-void driveMode(bool isTeleop) {
-    if (isTeleop) {
-        for (int i = 0; i < 6; i++) {
-            motors[i]->configMaxOutputs(-TELEOP_MAX_SPEED, TELEOP_MAX_SPEED);
-            motors[i]->configRampRate(TELEOP_MAX_RAMP_RATE);
-        }
-    } else {
-        for (int i = 0; i < 6; i++) {
-            motors[i]->configMaxOutputs(-AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
-            motors[i]->configRampRate(AUTONOMY_MAX_RAMP_RATE);
-        }
+void driveWheels() {
+    for (int i = 0; i < 6; i++) {
+        motors[i]->drive((int)(wheelSpeeds[i] * 1000));
     }
+}
+
+void setDriveMode(DriveMode mode) {
+    switch (mode) {
+        case DriveMode::TELEOP:
+            for (int i = 0; i < 6; i++) {
+                motors[i]->configMaxOutputs(-TELEOP_MAX_SPEED, TELEOP_MAX_SPEED);
+                motors[i]->configRampRate(TELEOP_MAX_RAMP_RATE);
+            }
+            break;
+        case DriveMode::AUTONOMY:
+            for (int i = 0; i < 6; i++) {
+                motors[i]->configMaxOutputs(-AUTONOMY_MAX_SPEED, AUTONOMY_MAX_SPEED);
+                motors[i]->configRampRate(AUTONOMY_MAX_RAMP_RATE);
+            }
+            break;
+    }
+    watchdogMode = mode;
 }
 
 void telemetry() {
@@ -256,8 +303,16 @@ void estop() {
             wheelSpeeds[i] = 0;
         }
     }
+    driveWheels();
 }
 
 void feedWatchdog() {
-    watchdog.begin(estop, (watchdogMode? WATCHDOG_TIMEOUT_AUTONOMY : WATCHDOG_TIMEOUT_TELEOP));
+    switch (watchdogMode) {
+        case DriveMode::TELEOP:
+            watchdog.begin(estop, WATCHDOG_TIMEOUT_TELEOP);
+            break;
+        case DriveMode::AUTONOMY:
+            watchdog.begin(estop, WATCHDOG_TIMEOUT_AUTONOMY);
+            break;
+    }
 }

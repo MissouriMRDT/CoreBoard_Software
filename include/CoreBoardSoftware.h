@@ -15,7 +15,7 @@ RoveCommEthernet RoveComm;
 // Wheels
 
 #define TELEOP_MAX_SPEED        1000
-#define TELEOP_MAX_RAMP_RATE    2000
+#define TELEOP_MAX_RAMP_RATE    500
 #define AUTONOMY_MAX_SPEED      1000
 #define AUTONOMY_MAX_RAMP_RATE  0 // Disable ramping for Autonomy
 
@@ -30,14 +30,15 @@ RoveVESC MR_Motor(&MR_SERIAL);
 RoveVESC BR_Motor(&BR_SERIAL);
 RoveVESC* motors[6] = {&FL_Motor, &ML_Motor, &BL_Motor, &FR_Motor, &MR_Motor, &BR_Motor};
 
+enum class DriveMode {
+    TELEOP = 0,
+    AUTONOMY = 1
+};
 //Drive Mode Set Ramp Rates and Max Speed
-void driveMode(bool isTeleop);
-
-#define DRIVE_UPDATE_PERIOD       15 // ms
-uint32_t nextDriveUpdate = 0;
+void setDriveMode(DriveMode mode);
+void driveWheels();
 
 // Servos
-
 PWMServo Spare1;
 PWMServo Spare2;
 PWMServo LeftPan;
@@ -58,6 +59,7 @@ Accelerometer accelerometer(SENS_SDA, SENS_SCL);
 
 // Lighting panel stuff
 Adafruit_NeoPixel backPanel(256, BACK_STRIP_PIN);
+Adafruit_NeoPixel innerStrip(256, INNER_STRIP_PIN);
 
 // This will eventually be phased out in favor of the RoveLighting library which runs its own state machine
 enum class DisplayState {
@@ -81,7 +83,7 @@ bool lightingPanelChanged = true;
 #define WATCHDOG_TIMEOUT_AUTONOMY       1500000
 IntervalTimer watchdog;
 bool watchdogOverride = false;
-uint8_t watchdogMode = 0; // 0: Teleop, 1: Autonomy
+DriveMode watchdogMode = DriveMode::TELEOP; // 0: Teleop, 1: Autonomy
 void feedWatchdog();
 
 #endif
