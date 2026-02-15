@@ -6,16 +6,23 @@
 
 #include <RoveComm.h>
 #include <RoveVESC.h>
+#include "RoveServo.h"
 
 #include <Adafruit_NeoPixel.h>
-#include <PWMServo.h>
+#include <Bounce.h>
 
 RoveCommEthernet RoveComm;
 
-// Wheels
+// Buttons
+Bounce buttonForward(DIR_FORWARD, 10);
+Bounce buttonBack(DIR_BACK, 10);
+Bounce buttonLeft(DIR_LEFT, 10);
+Bounce buttonRight(DIR_RIGHT, 10);
 
+
+// Wheels
 #define TELEOP_MAX_SPEED        1000
-#define TELEOP_MAX_RAMP_RATE    500
+#define TELEOP_MAX_RAMP_RATE    1200
 #define AUTONOMY_MAX_SPEED      1000
 #define AUTONOMY_MAX_RAMP_RATE  0 // Disable ramping for Autonomy
 
@@ -39,17 +46,17 @@ void setDriveMode(DriveMode mode);
 void driveWheels();
 
 // Servos
-PWMServo Spare1;
-PWMServo Spare2;
-PWMServo LeftPan;
-PWMServo LeftTilt;
-PWMServo BackPan;
-PWMServo BackTilt;
-PWMServo RightPan;
-PWMServo RightTilt;
+RoveServo Spare1;
+RoveServo Spare2;
+RoveServo LeftPan;
+RoveServo LeftTilt;
+RoveServo BackPan;
+RoveServo BackTilt;
+RoveServo RightPan;
+RoveServo RightTilt;
 
 void handleButtons();
-void driveMast(PWMServo& pan, PWMServo& tilt);
+void driveMast(RoveServo& pan, RoveServo& tilt);
 
 // Telemetry
 #define TELEMETRY_PERIOD 750 // in milliseconds
@@ -58,8 +65,21 @@ void telemetry();
 Accelerometer accelerometer(SENS_SDA, SENS_SCL);
 
 // Lighting panel stuff
+#define MAX_BRIGHTNESS          70
+#define LED_COUNT               256
+
 Adafruit_NeoPixel backPanel(256, BACK_STRIP_PIN);
 Adafruit_NeoPixel innerStrip(256, INNER_STRIP_PIN);
+
+//////////// TEMPORARY ////////////
+
+// Current lighting panel is not a NeoPixel, so separate pins switch red, green, and blue lines
+uint8_t RGBStripBrightness = MAX_BRIGHTNESS;
+uint32_t RGBStripColor = 0x000000;
+void setRGBStripColor(uint32_t rgb);
+void setRGBStripBrightness(uint8_t brightness);
+
+//////////// TEMPORARY ////////////
 
 // This will eventually be phased out in favor of the RoveLighting library which runs its own state machine
 enum class DisplayState {
@@ -74,9 +94,6 @@ void updateLightingPanel();
 uint32_t lastLightingPanelUpdate = 0;
 bool lightingPanelChanged = true;
 #define LIGHTING_PANEL_UPDATE_PERIOD 100 // ms
-
-#define MAX_BRIGHTNESS          70
-#define LED_COUNT               256
 
 // Watchdog
 #define WATCHDOG_TIMEOUT_TELEOP         1000000

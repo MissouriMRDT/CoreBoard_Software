@@ -65,4 +65,8 @@
 #define FAN_TACH_1       3
 #define FAN_TACH_2       4
 
+#define RED_PIN         9
+#define GREEN_PIN       4
+#define BLUE_PIN        33
+
 #endif

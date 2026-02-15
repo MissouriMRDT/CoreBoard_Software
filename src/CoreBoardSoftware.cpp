@@ -25,15 +25,42 @@ void setup() {
     // initialize Drive Mode
     setDriveMode(DriveMode::TELEOP);
 
-    // servos
-    Spare1.attach(SPARE_1_SERVO);
-    Spare2.attach(SPARE_2_SERVO);
-    LeftPan.attach(LEFT_PAN_SERVO);
-    LeftTilt.attach(LEFT_TILT_SERVO);
-    BackPan.attach(BACK_PAN_SERVO);
-    BackTilt.attach(BACK_TILT_SERVO);
-    RightPan.attach(RIGHT_PAN_SERVO);
-    RightTilt.attach(RIGHT_TILT_SERVO);
+    // servos (LDX-227)
+    Spare1.attach(SPARE_1_SERVO, 500, 2500);
+    Spare2.attach(SPARE_2_SERVO, 500, 2500);
+    LeftPan.attach(LEFT_PAN_SERVO, 500, 2500);
+    LeftTilt.attach(LEFT_TILT_SERVO, 500, 2500);
+    BackPan.attach(BACK_PAN_SERVO, 500, 2500);
+    BackTilt.attach(BACK_TILT_SERVO, 500, 2500);
+    RightPan.attach(RIGHT_PAN_SERVO, 500, 2500);
+    RightTilt.attach(RIGHT_TILT_SERVO, 500, 2500);
+
+    Spare1.configAngleRange(0, 270);
+    Spare2.configAngleRange(0, 270);
+    LeftPan.configAngleRange(0, 270);
+    LeftTilt.configAngleRange(0, 270);
+    BackPan.configAngleRange(0, 270);
+    BackTilt.configAngleRange(0, 270);
+    RightPan.configAngleRange(0, 270);
+    RightTilt.configAngleRange(0, 270);
+
+    // Spare1.configSoftLimits(0, 270);
+    // Spare2.configSoftLimits(0, 270);
+    LeftPan.configSoftLimits(0, 270);
+    LeftTilt.configSoftLimits(80, 200);
+    // BackPan.configSoftLimits(0, 270);
+    BackTilt.configSoftLimits(25, 210);
+    RightPan.configSoftLimits(0, 270);
+    RightTilt.configSoftLimits(80, 270);
+    
+    Spare1.write(90);
+    Spare2.write(90);
+    LeftPan.write(270);
+    LeftTilt.write(205);
+    BackPan.write(65);
+    BackTilt.write(123);
+    RightPan.write(72);
+    RightTilt.write(170);
 
     // rotary encoder
     pinMode(RTRY_1, INPUT_PULLDOWN);
@@ -47,8 +74,11 @@ void setup() {
     pinMode(DIR_LEFT, INPUT_PULLUP);
 
     // turn on fans
-    pinMode(FAN_PWM_1, OUTPUT);
-    analogWrite(FAN_PWM_1, 255);
+    // pinMode(FAN_PWM_1, OUTPUT);
+    // analogWrite(FAN_PWM_1, 255);
+    pinMode(RED_PIN, OUTPUT);
+    pinMode(GREEN_PIN, OUTPUT);
+    pinMode(BLUE_PIN, OUTPUT);
 
     accelerometer.begin();
     // TODO: set up temperature IC
@@ -60,6 +90,7 @@ void setup() {
     backPanel.setBrightness(MAX_BRIGHTNESS);
     innerStrip.begin();
     innerStrip.setBrightness(MAX_BRIGHTNESS);
+    setRGBStripBrightness(255); // The strip isn't as bright as the old panels
 
     nextTelemetry = millis();
 
@@ -121,6 +152,7 @@ void loop() {
         case RC_COREBOARD_BRIGHTNESS_DATA_ID:
             backPanel.setBrightness(packet.u8data[0]);
             innerStrip.setBrightness(packet.u8data[0]);
+            setRGBStripBrightness(packet.u8data[0]);
             break;
         case RC_COREBOARD_LEDRGB_DATA_ID:
             setDisplayState(DisplayState::CUSTOM);
@@ -142,6 +174,11 @@ void loop() {
 }
 
 void handleButtons() {
+    buttonForward.update();
+    buttonBack.update();
+    buttonLeft.update();
+    buttonRight.update();
+
     int mode = digitalRead(RTRY_1) | (digitalRead(RTRY_2) << 1) | (digitalRead(RTRY_4) << 2);
     switch (mode) {
         case 0:
@@ -164,32 +201,53 @@ void handleButtons() {
         case 6:
         {
             const int switches[] = {FL_SWITCH, ML_SWITCH, BL_SWITCH, FR_SWITCH, MR_SWITCH, BR_SWITCH};
-            bool forward = !digitalRead(DIR_FORWARD);
-            bool back = !digitalRead(DIR_BACK);
-            bool left = !digitalRead(DIR_LEFT);
-            bool right = !digitalRead(DIR_RIGHT);
+            // active low
+            bool forward = !buttonForward.read();
+            bool back = !buttonBack.read();
+            bool left = !buttonLeft.read();
+            bool right = !buttonRight.read();
+
+            bool shouldDrive = false;
             if (forward && !back) {
                 for (int i = 0; i < 6; i++) {
                     wheelSpeeds[i] = digitalRead(switches[i]) ? 0.5f : 0;
                 }
+                shouldDrive = true;
             } else if (back && !forward) {
                 for (int i = 0; i < 6; i++) {
                     wheelSpeeds[i] = digitalRead(switches[i]) ? -0.5f : 0;
                 }
+                shouldDrive = true;
             } else if (left && !right) {
                 for (int i = 0; i < 3; i++) {
                     wheelSpeeds[i] = digitalRead(switches[i]) ? -0.5f : 0;
-                    wheelSpeeds[i] = digitalRead(switches[i + 3]) ? 0.5f : 0;
+                    wheelSpeeds[i + 3] = digitalRead(switches[i + 3]) ? 0.5f : 0;
                 }
+                shouldDrive = true;
             } else if (right && !left) {
                 for (int i = 0; i < 3; i++) {
                     wheelSpeeds[i] = digitalRead(switches[i]) ? 0.5f : 0;
-                    wheelSpeeds[i] = digitalRead(switches[i + 3]) ? -0.5f : 0;
+                    wheelSpeeds[i + 3] = digitalRead(switches[i + 3]) ? -0.5f : 0;
                 }
+                shouldDrive = true;
+            } else if (
+                // Otherwise stop if any buttons have triggered or untriggered
+                buttonForward.risingEdge() ||
+                buttonBack.risingEdge() ||
+                buttonLeft.risingEdge() ||
+                buttonRight.risingEdge() ||
+                buttonForward.fallingEdge() ||
+                buttonBack.fallingEdge() ||
+                buttonLeft.fallingEdge() ||
+                buttonRight.fallingEdge()
+            ) {
+                for (int i = 0; i < 6; i++) {
+                    wheelSpeeds[i] = 0;
+                }
+                shouldDrive = true;
             }
-            if (forward || back || left || right) {
+            if (shouldDrive) {
                 driveWheels();
-                feedWatchdog();
             }
             break;
         }
@@ -198,18 +256,18 @@ void handleButtons() {
     }
 }
 
-void driveMast(PWMServo& pan, PWMServo& tilt) {
-    if (!digitalRead(DIR_FORWARD)) {
+void driveMast(RoveServo& pan, RoveServo& tilt) {
+    if (!buttonForward.read()) {
         tilt.write(tilt.read() + 1);
     }
-    if (!digitalRead(DIR_BACK)) {
+    if (!buttonBack.read()) {
         tilt.write(tilt.read() - 1);
     }
-    if (!digitalRead(DIR_RIGHT)) {
-        pan.write(pan.read() + 1);
-    }
-    if (!digitalRead(DIR_LEFT)) {
+    if (!buttonLeft.read()) {
         pan.write(pan.read() - 1);
+    }
+    if (!buttonRight.read()) {
+        pan.write(pan.read() + 1);
     }
 }
 
@@ -238,6 +296,7 @@ void setDriveMode(DriveMode mode) {
 }
 
 void telemetry() {
+    accelerometer.read();
     RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, 3, accelerometer.acceleration);
     // TODO: measure temperature and fan speeds
     float motorSpeeds[6];
@@ -258,6 +317,22 @@ void telemetry() {
     RoveComm.write(RC_COREBOARD_VESCCURRENTS_DATA_ID, RC_COREBOARD_VESCCURRENTS_DATA_COUNT, vescCurrents);
 }
 
+//////////// TEMPORARY ////////////
+
+void setRGBStripColor(uint32_t rgb) {
+    RGBStripColor = rgb;
+    analogWrite(RED_PIN, ((rgb & 0xFF) * RGBStripBrightness) >> 8);
+    analogWrite(RED_PIN, (((rgb >> 8) & 0xFF) * RGBStripBrightness) >> 8);
+    analogWrite(RED_PIN, (((rgb >> 16) & 0xFF) * RGBStripBrightness) >> 8);
+}
+
+void setRGBStripBrightness(uint8_t brightness) {
+    RGBStripBrightness = constrain(brightness, 0, 255);
+    setRGBStripColor(RGBStripColor); // update PWM
+}
+
+//////////// TEMPORARY ////////////
+
 void setDisplayState(DisplayState newState) {
     displayState = newState;
     lightingPanelChanged = true;
@@ -267,13 +342,16 @@ void setDisplayState(DisplayState newState) {
 void updateLightingPanel() {
     switch (displayState) {
         case DisplayState::OFF:
-            backPanel.clear();
+            // backPanel.clear();
+            setRGBStripColor(0x000000);
             break;
         case DisplayState::TELEOP:
-            backPanel.fill(0x0000FF); // Blue
+            // backPanel.fill(0x0000FF); // Blue
+            setRGBStripColor(0x0000FF);
             break;
         case DisplayState::AUTONOMY:
-            backPanel.fill(0xFF0000); // Red
+            // backPanel.fill(0xFF0000); // Red
+            setRGBStripColor(0xFF0000);
             break;
         case DisplayState::REACHED_GOAL:
         {
@@ -282,15 +360,17 @@ void updateLightingPanel() {
             if (lastColor != nextColor) {
                 lightingPanelChanged = true;
             }
-            backPanel.fill(nextColor);
+            // backPanel.fill(nextColor);
+            setRGBStripColor(nextColor);
             break;
         }
         case DisplayState::CUSTOM:
-            backPanel.fill(customDisplayColor);
+            // backPanel.fill(customDisplayColor);
+            setRGBStripColor(customDisplayColor);
             break;
     }
     if (lightingPanelChanged) {
-        backPanel.show(); // this takes like 7ms so we want to call it as little as possible.
+        // backPanel.show(); // this takes like 7ms so we want to call it as little as possible.
         lightingPanelChanged = false;
     }
 
