@@ -47,20 +47,20 @@ void setup() {
     // Spare1.configSoftLimits(0, 270);
     // Spare2.configSoftLimits(0, 270);
     LeftPan.configSoftLimits(0, 270);
-    LeftTilt.configSoftLimits(80, 200);
+    LeftTilt.configSoftLimits(30, 210);
     // BackPan.configSoftLimits(0, 270);
-    BackTilt.configSoftLimits(25, 210);
+    BackTilt.configSoftLimits(10, 180);
     RightPan.configSoftLimits(0, 270);
-    RightTilt.configSoftLimits(80, 270);
+    RightTilt.configSoftLimits(0, 180);
     
     Spare1.write(90);
     Spare2.write(90);
-    LeftPan.write(270);
-    LeftTilt.write(205);
-    BackPan.write(65);
-    BackTilt.write(123);
-    RightPan.write(72);
-    RightTilt.write(170);
+    LeftPan.write(90);
+    LeftTilt.write(120);
+    BackPan.write(90);
+    BackTilt.write(80);
+    RightPan.write(220);
+    RightTilt.write(90);
 
     // rotary encoder
     pinMode(RTRY_1, INPUT_PULLDOWN);
@@ -74,11 +74,15 @@ void setup() {
     pinMode(DIR_LEFT, INPUT_PULLUP);
 
     // turn on fans
-    // pinMode(FAN_PWM_1, OUTPUT);
-    // analogWrite(FAN_PWM_1, 255);
+    pinMode(FAN_PWM_1, OUTPUT);
+    analogWrite(FAN_PWM_1, 127);
+
     pinMode(RED_PIN, OUTPUT);
     pinMode(GREEN_PIN, OUTPUT);
     pinMode(BLUE_PIN, OUTPUT);
+    analogWriteFrequency(RED_PIN, 50);
+    analogWriteFrequency(GREEN_PIN, 50);
+    analogWriteFrequency(BLUE_PIN, 50);
 
     accelerometer.begin();
     // TODO: set up temperature IC
@@ -86,8 +90,8 @@ void setup() {
     // initialize rovecomm
     RoveComm.begin(RC_COREBOARD_IPADDRESS);
 
-    backPanel.begin();
-    backPanel.setBrightness(MAX_BRIGHTNESS);
+    // backPanel.begin();
+    // backPanel.setBrightness(MAX_BRIGHTNESS);
     innerStrip.begin();
     innerStrip.setBrightness(MAX_BRIGHTNESS);
     setRGBStripBrightness(255); // The strip isn't as bright as the old panels
@@ -150,7 +154,7 @@ void loop() {
                     break;
             }
         case RC_COREBOARD_BRIGHTNESS_DATA_ID:
-            backPanel.setBrightness(packet.u8data[0]);
+            // backPanel.setBrightness(packet.u8data[0]);
             innerStrip.setBrightness(packet.u8data[0]);
             setRGBStripBrightness(packet.u8data[0]);
             break;
@@ -160,6 +164,7 @@ void loop() {
             break;
         case RC_COREBOARD_INTERNALRGB_DATA_ID:
             innerStrip.fill(Adafruit_NeoPixel::Color(packet.u8data[0], packet.u8data[1], packet.u8data[2]));
+            innerStrip.show();
             break;
     }
 
@@ -252,6 +257,20 @@ void handleButtons() {
             break;
         }
         case 7:
+            if (buttonRight.fallingEdge()) {
+                if (displayState != DisplayState::CUSTOM) {
+                    displayState = (DisplayState)((4 + (int)displayState + 1) % 4);
+                } else {
+                    displayState = DisplayState::OFF;
+                }
+
+            } else if (buttonLeft.fallingEdge()) {
+                if (displayState != DisplayState::CUSTOM) {
+                    displayState = (DisplayState)((4 + (int)displayState - 1) % 4);
+                } else {
+                    displayState = DisplayState::OFF;
+                }
+            }
             break;
     }
 }
@@ -320,10 +339,13 @@ void telemetry() {
 //////////// TEMPORARY ////////////
 
 void setRGBStripColor(uint32_t rgb) {
-    RGBStripColor = rgb;
-    analogWrite(RED_PIN, ((rgb & 0xFF) * RGBStripBrightness) >> 8);
-    analogWrite(RED_PIN, (((rgb >> 8) & 0xFF) * RGBStripBrightness) >> 8);
+    if (RGBStripColor != rgb) {
+        lightingPanelChanged = true;
+        RGBStripColor = rgb;
+    }
     analogWrite(RED_PIN, (((rgb >> 16) & 0xFF) * RGBStripBrightness) >> 8);
+    analogWrite(GREEN_PIN, (((rgb >> 8) & 0xFF) * RGBStripBrightness) >> 8);
+    analogWrite(BLUE_PIN, ((rgb & 0xFF) * RGBStripBrightness) >> 8);
 }
 
 void setRGBStripBrightness(uint8_t brightness) {
@@ -365,12 +387,11 @@ void updateLightingPanel() {
             break;
         }
         case DisplayState::CUSTOM:
-            // backPanel.fill(customDisplayColor);
             setRGBStripColor(customDisplayColor);
             break;
     }
     if (lightingPanelChanged) {
-        // backPanel.show(); // this takes like 7ms so we want to call it as little as possible.
+        innerStrip.show(); // this takes like 7ms so we want to call it as little as possible.
         lightingPanelChanged = false;
     }
 

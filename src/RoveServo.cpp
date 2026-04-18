@@ -28,11 +28,12 @@
 
 uint32_t RoveServo::attachedpins[(NUM_DIGITAL_PINS+31)/32]; // 1 bit per digital pin
 
-RoveServo::RoveServo() : pin(255), angle(NO_ANGLE) {}
-
-uint8_t RoveServo::attach(int pinArg, int min, int max) {
+RoveServo::RoveServo() : pin(255), angle(NO_ANGLE) {
     configAngleRange(0, 180);
     disableSoftLimits();
+}
+
+uint8_t RoveServo::attach(int pinArg, int min, int max) {
 	//Serial.printf("attach, pin=%d, min=%d, max=%d\n", pinArg, min, max);
 	if (pinArg < 0 || pinArg >= NUM_DIGITAL_PINS) return 0;
 	if (!digitalPinHasPWM(pinArg)) return 0;
@@ -52,7 +53,7 @@ void RoveServo::configAngleRange(int16_t min, int16_t max) {
     maxAngle = max;
     if (softLimitsEnabled()) {
         minSoftLimit = constrain(minSoftLimit, minAngle, maxAngle);
-        maxSoftLimit = constrain(minSoftLimit, minSoftLimit, maxAngle);
+        maxSoftLimit = constrain(maxSoftLimit, minSoftLimit, maxAngle);
     }
 }
 
@@ -73,8 +74,6 @@ bool RoveServo::softLimitsEnabled() {
 void RoveServo::write(int angleArg) {
 	//Serial.printf("write, pin=%d, angle=%d\n", pin, angleArg);
 	if (pin >= NUM_DIGITAL_PINS) return;
-	if (angleArg < minAngle) angleArg = 0;
-	if (angleArg > maxAngle) angleArg = 180;
     if (softLimitsEnabled()) {
         angleArg = constrain(angleArg, minSoftLimit, maxSoftLimit);
     } else {
