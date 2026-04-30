@@ -33,10 +33,6 @@
 #define SPARE_1_SERVO         22
 #define SPARE_2_SERVO         5
 
-//NeoPixels Pins
-#define BACK_STRIP_PIN        17
-#define INNER_STRIP_PIN       16
-
 //Button Pins
 #define RTRY_1          26
 #define RTRY_2          30
@@ -61,12 +57,14 @@
 
 //Fan Pins
 #define FAN_PWM_1        10
-#define FAN_PWM_2        9
 #define FAN_TACH_1       3
-#define FAN_TACH_2       4
 
-#define RED_PIN         9
-#define GREEN_PIN       4
-#define BLUE_PIN        33
+//NeoPixels Pins
+#define NEOPIXEL_1_PIN    17
+#define NEOPIXEL_2_PIN    16
+//RGB Strip Pins
+#define RED_PIN         4
+#define GREEN_PIN       33
+#define BLUE_PIN        9
 
 #endif

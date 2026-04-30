@@ -80,21 +80,24 @@ void setup() {
     pinMode(RED_PIN, OUTPUT);
     pinMode(GREEN_PIN, OUTPUT);
     pinMode(BLUE_PIN, OUTPUT);
-    analogWriteFrequency(RED_PIN, 50);
-    analogWriteFrequency(GREEN_PIN, 50);
-    analogWriteFrequency(BLUE_PIN, 50);
 
     accelerometer.begin();
-    // TODO: set up temperature IC
 
     // initialize rovecomm
     RoveComm.begin(RC_COREBOARD_IPADDRESS);
 
-    // backPanel.begin();
-    // backPanel.setBrightness(MAX_BRIGHTNESS);
-    innerStrip.begin();
-    innerStrip.setBrightness(MAX_BRIGHTNESS);
+    NeoPixel1.begin();
+    NeoPixel1.setBrightness(MAX_BRIGHTNESS);
+    NeoPixel1.fill(0xFF0000);
+    NeoPixel1.show();
+
+    NeoPixel2.begin();
+    NeoPixel2.setBrightness(MAX_BRIGHTNESS);
+    NeoPixel2.fill(0xFF0000);
+    NeoPixel2.show();
+
     setRGBStripBrightness(255); // The strip isn't as bright as the old panels
+    setDisplayState(DisplayState::OFF);
 
     nextTelemetry = millis();
 
@@ -153,18 +156,21 @@ void loop() {
                     setDisplayState(DisplayState::REACHED_GOAL);
                     break;
             }
+            break;
         case RC_COREBOARD_BRIGHTNESS_DATA_ID:
-            // backPanel.setBrightness(packet.u8data[0]);
-            innerStrip.setBrightness(packet.u8data[0]);
+            NeoPixel1.setBrightness(packet.u8data[0]);
+            NeoPixel2.setBrightness(packet.u8data[0]);
             setRGBStripBrightness(packet.u8data[0]);
             break;
         case RC_COREBOARD_LEDRGB_DATA_ID:
-            setDisplayState(DisplayState::CUSTOM);
             customDisplayColor = Adafruit_NeoPixel::Color(packet.u8data[0], packet.u8data[1], packet.u8data[2]);
+            setDisplayState(DisplayState::CUSTOM);
             break;
         case RC_COREBOARD_INTERNALRGB_DATA_ID:
-            innerStrip.fill(Adafruit_NeoPixel::Color(packet.u8data[0], packet.u8data[1], packet.u8data[2]));
-            innerStrip.show();
+            NeoPixel1.fill(Adafruit_NeoPixel::Color(packet.u8data[0], packet.u8data[1], packet.u8data[2]));
+            NeoPixel1.show();
+            NeoPixel2.fill(Adafruit_NeoPixel::Color(packet.u8data[0], packet.u8data[1], packet.u8data[2]));
+            NeoPixel2.show();
             break;
     }
 
@@ -323,7 +329,7 @@ void telemetry() {
     float vescCurrents[6];
     for (int i = 0; i < 6; i++) {
         VescValues values = motors[i]->getVescTelemetry();
-        // motorSpeeds[i] = values.rpm / 14; // divide by motor poles
+        motorSpeeds[i] = values.rpm / 14; // divide by motor poles
         motorCurrents[i] = values.avgMotorCurrent;
         vescCurrents[i] = values.avgInputCurrent;
         if (values.error != FAULT_CODE_NONE) {
@@ -349,7 +355,7 @@ void setRGBStripColor(uint32_t rgb) {
 }
 
 void setRGBStripBrightness(uint8_t brightness) {
-    RGBStripBrightness = constrain(brightness, 0, 255);
+    RGBStripBrightness = brightness;
     setRGBStripColor(RGBStripColor); // update PWM
 }
 
@@ -377,12 +383,12 @@ void updateLightingPanel() {
             break;
         case DisplayState::REACHED_GOAL:
         {
-            uint32_t lastColor = backPanel.getPixelColor(0);
+            // uint32_t lastColor = NeoPixel1.getPixelColor(0);
+            // uint32_t lastColor = RGBStripColor;
             uint32_t nextColor = (displayStateProgress / 1000) % 2 == 0 ? 0x00FF00 : 0x000000; // Blink green each second
-            if (lastColor != nextColor) {
-                lightingPanelChanged = true;
-            }
-            // backPanel.fill(nextColor);
+            // if (lastColor != nextColor) {
+            //     lightingPanelChanged = true;
+            // }
             setRGBStripColor(nextColor);
             break;
         }
@@ -391,7 +397,8 @@ void updateLightingPanel() {
             break;
     }
     if (lightingPanelChanged) {
-        innerStrip.show(); // this takes like 7ms so we want to call it as little as possible.
+        // NeoPixel1.show();
+        // NeoPixel2.show(); // this takes like 7ms so we want to call it as little as possible.
         lightingPanelChanged = false;
     }
 

@@ -68,8 +68,8 @@ Accelerometer accelerometer(SENS_SDA, SENS_SCL);
 #define MAX_BRIGHTNESS          70
 #define LED_COUNT               256
 
-Adafruit_NeoPixel backPanel(256, BACK_STRIP_PIN);
-Adafruit_NeoPixel innerStrip(256, INNER_STRIP_PIN);
+Adafruit_NeoPixel NeoPixel1(256, NEOPIXEL_1_PIN);
+Adafruit_NeoPixel NeoPixel2(256, NEOPIXEL_2_PIN);
 
 //////////// TEMPORARY ////////////
 
