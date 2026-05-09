@@ -9,6 +9,7 @@
 #include "RoveServo.h"
 
 #include <Adafruit_NeoPixel.h>
+#include <Adafruit_MCP9808.h>
 #include <Bounce.h>
 
 RoveCommEthernet RoveComm;
@@ -63,13 +64,15 @@ void driveMast(RoveServo& pan, RoveServo& tilt);
 uint32_t nextTelemetry = 0;
 void telemetry();
 Accelerometer accelerometer(SENS_SDA, SENS_SCL);
+Adafruit_MCP9808 tempSensor;
+uint32_t tachometerPulses = 0;
 
 // Lighting panel stuff
 #define MAX_BRIGHTNESS          70
-#define LED_COUNT               256
+#define LED_COUNT               64
 
-Adafruit_NeoPixel backPanel(256, BACK_STRIP_PIN);
-Adafruit_NeoPixel innerStrip(256, INNER_STRIP_PIN);
+Adafruit_NeoPixel backPanel(64, BACK_STRIP_PIN);
+Adafruit_NeoPixel innerStrip(64, INNER_STRIP_PIN);
 
 //////////// TEMPORARY ////////////
 

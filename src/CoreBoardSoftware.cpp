@@ -74,24 +74,33 @@ void setup() {
     pinMode(DIR_LEFT, INPUT_PULLUP);
 
     // turn on fans
-    // pinMode(FAN_PWM_1, OUTPUT);
-    // analogWrite(FAN_PWM_1, 255);
+    pinMode(FAN_PWM_1, OUTPUT);
+    analogWrite(FAN_PWM_1, 255);
+    // fan speed
+    attachInterrupt(FAN_TACH_1, [](){tachometerPulses++;}, RISING);
     pinMode(RED_PIN, OUTPUT);
     pinMode(GREEN_PIN, OUTPUT);
     pinMode(BLUE_PIN, OUTPUT);
 
     accelerometer.begin();
-    // TODO: set up temperature IC
+    tempSensor.begin();
 
     // initialize rovecomm
     RoveComm.begin(RC_COREBOARD_IPADDRESS);
 
-    backPanel.begin();
     backPanel.setBrightness(MAX_BRIGHTNESS);
-    innerStrip.begin();
     innerStrip.setBrightness(MAX_BRIGHTNESS);
+    backPanel.begin();
+    innerStrip.begin();
+    backPanel.fill(Adafruit_NeoPixel::Color(255, 0, 0));
+    innerStrip.fill(Adafruit_NeoPixel::Color(255, 0, 0));
+    backPanel.show();
+    innerStrip.show();
     setRGBStripBrightness(255); // The strip isn't as bright as the old panels
-
+    digitalWrite(RED_PIN, 1);
+    digitalWrite(GREEN_PIN, 0);
+    digitalWrite(BLUE_PIN, 0);
+    
     nextTelemetry = millis();
 
     feedWatchdog();
@@ -149,6 +158,7 @@ void loop() {
                     setDisplayState(DisplayState::REACHED_GOAL);
                     break;
             }
+            break;
         case RC_COREBOARD_BRIGHTNESS_DATA_ID:
             backPanel.setBrightness(packet.u8data[0]);
             innerStrip.setBrightness(packet.u8data[0]);
@@ -297,6 +307,11 @@ void setDriveMode(DriveMode mode) {
 
 void telemetry() {
     accelerometer.read();
+    float tempC = tempSensor.readTempC();
+    float fanRpm = (float)tachometerPulses * 60000 / TELEMETRY_PERIOD;
+    tachometerPulses = 0;
+    float thermalData[3] = {fanRpm, tempC, 0};
+    RoveComm.write(RC_COREBOARD_THERMAL_DATA_ID, 3, thermalData);
     RoveComm.write(RC_COREBOARD_ACCELEROMETERDATA_DATA_ID, 3, accelerometer.acceleration);
     // TODO: measure temperature and fan speeds
     float motorSpeeds[6];
@@ -321,14 +336,14 @@ void telemetry() {
 
 void setRGBStripColor(uint32_t rgb) {
     RGBStripColor = rgb;
-    analogWrite(RED_PIN, ((rgb & 0xFF) * RGBStripBrightness) >> 8);
-    analogWrite(RED_PIN, (((rgb >> 8) & 0xFF) * RGBStripBrightness) >> 8);
-    analogWrite(RED_PIN, (((rgb >> 16) & 0xFF) * RGBStripBrightness) >> 8);
+    // analogWrite(RED_PIN, ((rgb & 0xFF) * RGBStripBrightness) >> 8);
+    // analogWrite(GREEN_PIN, (((rgb >> 8) & 0xFF) * RGBStripBrightness) >> 8);
+    // analogWrite(BLUE_PIN, (((rgb >> 16) & 0xFF) * RGBStripBrightness) >> 8);
 }
 
 void setRGBStripBrightness(uint8_t brightness) {
     RGBStripBrightness = constrain(brightness, 0, 255);
-    setRGBStripColor(RGBStripColor); // update PWM
+    // setRGBStripColor(RGBStripColor); // update PWM
 }
 
 //////////// TEMPORARY ////////////
@@ -343,15 +358,24 @@ void updateLightingPanel() {
     switch (displayState) {
         case DisplayState::OFF:
             // backPanel.clear();
-            setRGBStripColor(0x000000);
+            // setRGBStripColor(0x000000);
+            digitalWrite(RED_PIN, 0);
+            digitalWrite(GREEN_PIN, 0);
+            digitalWrite(BLUE_PIN, 0);
             break;
         case DisplayState::TELEOP:
             // backPanel.fill(0x0000FF); // Blue
-            setRGBStripColor(0x0000FF);
+            // setRGBStripColor(0x0000FF);
+            digitalWrite(RED_PIN, 0);
+            digitalWrite(GREEN_PIN, 0);
+            digitalWrite(BLUE_PIN, 1);
             break;
         case DisplayState::AUTONOMY:
             // backPanel.fill(0xFF0000); // Red
-            setRGBStripColor(0xFF0000);
+            // setRGBStripColor(0xFF0000);
+            digitalWrite(RED_PIN, 1);
+            digitalWrite(GREEN_PIN, 0);
+            digitalWrite(BLUE_PIN, 0);
             break;
         case DisplayState::REACHED_GOAL:
         {
@@ -361,12 +385,21 @@ void updateLightingPanel() {
                 lightingPanelChanged = true;
             }
             // backPanel.fill(nextColor);
-            setRGBStripColor(nextColor);
+            // setRGBStripColor(nextColor);
+            if (nextColor == 0x00FF00) {
+                digitalWrite(RED_PIN, 0);
+                digitalWrite(GREEN_PIN, 1);
+                digitalWrite(BLUE_PIN, 0);
+            } else {
+                digitalWrite(RED_PIN, 0);
+                digitalWrite(GREEN_PIN, 0);
+                digitalWrite(BLUE_PIN, 0);
+            }
             break;
         }
         case DisplayState::CUSTOM:
             // backPanel.fill(customDisplayColor);
-            setRGBStripColor(customDisplayColor);
+            // setRGBStripColor(customDisplayColor);
             break;
     }
     if (lightingPanelChanged) {
