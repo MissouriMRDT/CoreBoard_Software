@@ -57,6 +57,7 @@ RoveServo RightTilt;
 
 void handleButtons();
 void driveMast(RoveServo& pan, RoveServo& tilt);
+void servoStartups();
 
 // Telemetry
 #define TELEMETRY_PERIOD 750 // in milliseconds

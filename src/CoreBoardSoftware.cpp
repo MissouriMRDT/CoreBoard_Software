@@ -48,19 +48,12 @@ void setup() {
     // Spare2.configSoftLimits(0, 270);
     LeftPan.configSoftLimits(0, 270);
     LeftTilt.configSoftLimits(30, 210);
-    // BackPan.configSoftLimits(0, 270);
-    BackTilt.configSoftLimits(10, 180);
+    BackPan.configSoftLimits(50, 270);
+    BackTilt.configSoftLimits(10, 200);
     RightPan.configSoftLimits(0, 270);
     RightTilt.configSoftLimits(0, 180);
     
-    Spare1.write(90);
-    Spare2.write(90);
-    LeftPan.write(90);
-    LeftTilt.write(120);
-    BackPan.write(90);
-    BackTilt.write(80);
-    RightPan.write(220);
-    RightTilt.write(90);
+    servoStartups();
 
     // rotary encoder
     pinMode(RTRY_1, INPUT_PULLDOWN);
@@ -294,6 +287,36 @@ void driveMast(RoveServo& pan, RoveServo& tilt) {
     if (!buttonRight.read()) {
         pan.write(pan.read() + 1);
     }
+}
+
+void servoStartups() {
+    Spare1.write(270);
+    Spare2.write(270);
+    LeftPan.write(270);
+    LeftTilt.write(270);
+    BackPan.write(270);
+    BackTilt.write(270);
+    RightPan.write(270);
+    RightTilt.write(270);
+    delay(5000);
+    Spare1.write(0);
+    Spare2.write(0);
+    LeftPan.write(0);
+    LeftTilt.write(0);
+    BackPan.write(0);
+    BackTilt.write(0);
+    RightPan.write(0);
+    RightTilt.write(0);
+    delay(5000);
+    Spare1.write(90);
+    Spare2.write(90);
+    LeftPan.write(90);
+    LeftTilt.write(120);
+    BackPan.write(120);
+    BackTilt.write(80);
+    RightPan.write(220);
+    RightTilt.write(90);
+    delay(2000);
 }
 
 void driveWheels() {
