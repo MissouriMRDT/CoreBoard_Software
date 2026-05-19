@@ -52,8 +52,15 @@ void setup() {
     BackTilt.configSoftLimits(10, 200);
     RightPan.configSoftLimits(0, 270);
     RightTilt.configSoftLimits(0, 180);
-    
-    servoStartups();
+
+    Spare1.write(90);
+    Spare2.write(90);
+    LeftPan.write(90);
+    LeftTilt.write(120);
+    BackPan.write(120);
+    BackTilt.write(80);
+    RightPan.write(220);
+    RightTilt.write(90);
 
     // rotary encoder
     pinMode(RTRY_1, INPUT_PULLDOWN);
@@ -73,6 +80,9 @@ void setup() {
     pinMode(RED_PIN, OUTPUT);
     pinMode(GREEN_PIN, OUTPUT);
     pinMode(BLUE_PIN, OUTPUT);
+    analogWriteFrequency(RED_PIN, 400);
+    analogWriteFrequency(GREEN_PIN, 400);
+    analogWriteFrequency(BLUE_PIN, 400);
 
     accelerometer.begin();
 
@@ -289,36 +299,6 @@ void driveMast(RoveServo& pan, RoveServo& tilt) {
     }
 }
 
-void servoStartups() {
-    Spare1.write(270);
-    Spare2.write(270);
-    LeftPan.write(270);
-    LeftTilt.write(270);
-    BackPan.write(270);
-    BackTilt.write(270);
-    RightPan.write(270);
-    RightTilt.write(270);
-    delay(5000);
-    Spare1.write(0);
-    Spare2.write(0);
-    LeftPan.write(0);
-    LeftTilt.write(0);
-    BackPan.write(0);
-    BackTilt.write(0);
-    RightPan.write(0);
-    RightTilt.write(0);
-    delay(5000);
-    Spare1.write(90);
-    Spare2.write(90);
-    LeftPan.write(90);
-    LeftTilt.write(120);
-    BackPan.write(120);
-    BackTilt.write(80);
-    RightPan.write(220);
-    RightTilt.write(90);
-    delay(2000);
-}
-
 void driveWheels() {
     for (int i = 0; i < 6; i++) {
         motors[i]->drive((int)(wheelSpeeds[i] * 1000));
@@ -393,35 +373,41 @@ void setDisplayState(DisplayState newState) {
 void updateLightingPanel() {
     switch (displayState) {
         case DisplayState::OFF:
-            // backPanel.clear();
+            NeoPixel1.clear();
+            NeoPixel2.clear();
             setRGBStripColor(0x000000);
             break;
         case DisplayState::TELEOP:
-            // backPanel.fill(0x0000FF); // Blue
+            NeoPixel1.fill(0x0000FF);
+            NeoPixel2.fill(0x0000FF);
             setRGBStripColor(0x0000FF);
             break;
         case DisplayState::AUTONOMY:
-            // backPanel.fill(0xFF0000); // Red
+            NeoPixel1.fill(0xFF0000); // Red
+            NeoPixel2.fill(0xFF0000); // Red
             setRGBStripColor(0xFF0000);
             break;
         case DisplayState::REACHED_GOAL:
         {
-            // uint32_t lastColor = NeoPixel1.getPixelColor(0);
-            // uint32_t lastColor = RGBStripColor;
+            uint32_t lastColor = NeoPixel1.getPixelColor(0);
             uint32_t nextColor = (displayStateProgress / 1000) % 2 == 0 ? 0x00FF00 : 0x000000; // Blink green each second
-            // if (lastColor != nextColor) {
-            //     lightingPanelChanged = true;
-            // }
+            if (lastColor != nextColor) {
+                lightingPanelChanged = true;
+            }
+            NeoPixel1.fill(nextColor);
+            NeoPixel2.fill(nextColor);
             setRGBStripColor(nextColor);
             break;
         }
         case DisplayState::CUSTOM:
             setRGBStripColor(customDisplayColor);
+            NeoPixel1.fill(customDisplayColor);
+            NeoPixel2.fill(customDisplayColor);
             break;
     }
     if (lightingPanelChanged) {
-        // NeoPixel1.show();
-        // NeoPixel2.show(); // this takes like 7ms so we want to call it as little as possible.
+        NeoPixel1.show();
+        NeoPixel2.show(); // this takes like 7ms so we want to call it as little as possible.
         lightingPanelChanged = false;
     }
 

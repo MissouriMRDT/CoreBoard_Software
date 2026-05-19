@@ -33,7 +33,7 @@ class RoveServo
     void configAngleRange(int16_t min, int16_t max); // default 0 to 180
     void configSoftLimits(int16_t min, int16_t max); // default min angle to max angle
     void disableSoftLimits(); // same as configSoftLimits(0, 0);
-    bool softLimitsEnabled(); // check if soft limits are enabled
+    bool softLimitsEnabled() const; // check if soft limits are enabled
     // void detach();
     void write(int angleArg); // specify the angle in degrees, 0 to 180
     int16_t read() { return angle; }

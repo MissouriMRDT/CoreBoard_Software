@@ -66,8 +66,8 @@ void RoveServo::disableSoftLimits() {
     configSoftLimits(0, 0);
 }
 
-bool RoveServo::softLimitsEnabled() {
-    return minSoftLimit == 0 && maxSoftLimit == 0;
+bool RoveServo::softLimitsEnabled() const {
+    return !(minSoftLimit == 0 && maxSoftLimit == 0);
 }
 
 
