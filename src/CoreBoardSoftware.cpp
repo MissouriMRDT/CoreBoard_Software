@@ -91,12 +91,10 @@ void setup() {
 
     NeoPixel1.begin();
     NeoPixel1.setBrightness(MAX_BRIGHTNESS);
-    NeoPixel1.fill(0xFF0000);
     NeoPixel1.show();
 
     NeoPixel2.begin();
     NeoPixel2.setBrightness(MAX_BRIGHTNESS);
-    NeoPixel2.fill(0xFF0000);
     NeoPixel2.show();
 
     setRGBStripBrightness(255); // The strip isn't as bright as the old panels
@@ -108,6 +106,15 @@ void setup() {
 }
 
 void loop() {
+    // static int fps = 0;
+    // fps++;
+    // static uint32_t lastFPSMeasurement = millis();
+    // if (millis() - lastFPSMeasurement > 1000) {
+    //     lastFPSMeasurement = millis();
+    //     Serial.printf("FPS: %d\n", fps);
+    //     fps = 0;
+    // }
+
     handleButtons();
 
     // responding to commands
@@ -157,6 +164,9 @@ void loop() {
                     break;
                 case REACHED_GOAL:
                     setDisplayState(DisplayState::REACHED_GOAL);
+                    break;
+                case 3:
+                    setDisplayState(DisplayState::RAINBOW);
                     break;
             }
             break;
@@ -365,9 +375,11 @@ void setRGBStripBrightness(uint8_t brightness) {
 //////////// TEMPORARY ////////////
 
 void setDisplayState(DisplayState newState) {
+    if (displayState != newState) {
+        lightingPanelChanged = true;
+        displayStateStartTime = millis();
+    }
     displayState = newState;
-    lightingPanelChanged = true;
-    displayStateProgress = 0;
 }
 
 void updateLightingPanel() {
@@ -383,14 +395,14 @@ void updateLightingPanel() {
             setRGBStripColor(0x0000FF);
             break;
         case DisplayState::AUTONOMY:
-            NeoPixel1.fill(0xFF0000); // Red
-            NeoPixel2.fill(0xFF0000); // Red
+            NeoPixel1.fill(0xFF0000);
+            NeoPixel2.fill(0xFF0000);
             setRGBStripColor(0xFF0000);
             break;
         case DisplayState::REACHED_GOAL:
         {
             uint32_t lastColor = NeoPixel1.getPixelColor(0);
-            uint32_t nextColor = (displayStateProgress / 1000) % 2 == 0 ? 0x00FF00 : 0x000000; // Blink green each second
+            uint32_t nextColor = ((displayStateStartTime - millis()) / 200) % 2 == 0 ? 0x00FF00 : 0x000000; // Blink green each second
             if (lastColor != nextColor) {
                 lightingPanelChanged = true;
             }
@@ -404,14 +416,23 @@ void updateLightingPanel() {
             NeoPixel1.fill(customDisplayColor);
             NeoPixel2.fill(customDisplayColor);
             break;
+        case DisplayState::RAINBOW:
+            customDisplayColor = Adafruit_NeoPixel::Color(
+                (int)(255 * (sin(millis() * 0.001) / 2 + 0.5)),
+                (int)(255 * (sin(millis() * 0.001 + 2*M_PI/3) / 2 + 0.5)),
+                (int)(255 * (sin(millis() * 0.001 + 4*M_PI/3) / 2 + 0.5))
+            );
+            setRGBStripColor(customDisplayColor);
+            NeoPixel1.fill(customDisplayColor);
+            NeoPixel2.fill(customDisplayColor);
+            lightingPanelChanged = true;
+            break;
     }
     if (lightingPanelChanged) {
         NeoPixel1.show();
         NeoPixel2.show(); // this takes like 7ms so we want to call it as little as possible.
         lightingPanelChanged = false;
     }
-
-    displayStateProgress += LIGHTING_PANEL_UPDATE_PERIOD;
 }
 
 void estop() {

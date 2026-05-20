@@ -83,17 +83,16 @@ void setRGBStripBrightness(uint8_t brightness);
 
 // This will eventually be phased out in favor of the RoveLighting library which runs its own state machine
 enum class DisplayState {
-    OFF, TELEOP, AUTONOMY, REACHED_GOAL, CUSTOM
+    OFF, TELEOP, AUTONOMY, REACHED_GOAL, CUSTOM, RAINBOW
 };
 DisplayState displayState = DisplayState::OFF;
 uint32_t customDisplayColor = 0x000000; // Adafruit_NeoPixel::Color(r, g, b) -> int
 void setDisplayState(DisplayState newState);
-uint32_t displayStateProgress = 0;
+uint32_t displayStateStartTime;
 
 void updateLightingPanel();
 uint32_t lastLightingPanelUpdate = 0;
 bool lightingPanelChanged = true;
-#define LIGHTING_PANEL_UPDATE_PERIOD 100 // ms
 
 // Watchdog
 #define WATCHDOG_TIMEOUT_TELEOP         1000000
