@@ -26,14 +26,16 @@ void setup() {
     setDriveMode(DriveMode::TELEOP);
 
     // servos (LDX-227)
-    Spare1.attach(SPARE_1_SERVO, 500, 2500);
-    Spare2.attach(SPARE_2_SERVO, 500, 2500);
+    // Spare1.attach(SPARE_1_SERVO, 500, 2500);
+    // Spare2.attach(SPARE_2_SERVO, 500, 2500);
     LeftPan.attach(LEFT_PAN_SERVO, 500, 2500);
     LeftTilt.attach(LEFT_TILT_SERVO, 500, 2500);
     BackPan.attach(BACK_PAN_SERVO, 500, 2500);
     BackTilt.attach(BACK_TILT_SERVO, 500, 2500);
-    RightPan.attach(RIGHT_PAN_SERVO, 500, 2500);
-    RightTilt.attach(RIGHT_TILT_SERVO, 500, 2500);
+    // RightPan.attach(RIGHT_PAN_SERVO, 500, 2500);
+    // RightTilt.attach(RIGHT_TILT_SERVO, 500, 2500);
+    RightPan.attach(SPARE_1_SERVO, 500, 2500);
+    RightTilt.attach(SPARE_2_SERVO, 500, 2500);
 
     Spare1.configAngleRange(0, 270);
     Spare2.configAngleRange(0, 270);
@@ -75,7 +77,7 @@ void setup() {
 
     // turn on fans
     pinMode(FAN_PWM_1, OUTPUT);
-    analogWrite(FAN_PWM_1, 127);
+    analogWrite(FAN_PWM_1, 255);
 
     pinMode(RED_PIN, OUTPUT);
     pinMode(GREEN_PIN, OUTPUT);
