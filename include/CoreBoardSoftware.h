@@ -24,7 +24,7 @@ Bounce buttonRight(DIR_RIGHT, 10);
 #define TELEOP_MAX_SPEED        1000
 #define TELEOP_MAX_RAMP_RATE    1200
 #define AUTONOMY_MAX_SPEED      1000
-#define AUTONOMY_MAX_RAMP_RATE  0 // Disable ramping for Autonomy
+#define AUTONOMY_MAX_RAMP_RATE  1200 // Disable ramping for Autonomy
 
 //[FL, ML, BL, FR, MR, BR]
 float wheelSpeeds[6] = {0};

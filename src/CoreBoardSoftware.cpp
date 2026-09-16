@@ -195,6 +195,8 @@ void loop() {
     }
 
     updateLightingPanel();
+    
+    driveWheels();
 
     delay(10);
 }
@@ -314,7 +316,9 @@ void driveMast(RoveServo& pan, RoveServo& tilt) {
 void driveWheels() {
     for (int i = 0; i < 6; i++) {
         motors[i]->drive((int)(wheelSpeeds[i] * 1000));
+        // Serial.printf("%d, ", motors[i]->lastDecipercent());
     }
+    // Serial.println();
 }
 
 void setDriveMode(DriveMode mode) {
