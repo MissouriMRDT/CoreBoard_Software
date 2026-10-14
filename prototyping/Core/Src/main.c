@@ -103,7 +103,11 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM8_Init();
   /* USER CODE BEGIN 2 */
+  if (HAL_TIM_PWM_START(&htim2, TIM_CHANNEL_3))
+    {
 
+    }
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 10000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
