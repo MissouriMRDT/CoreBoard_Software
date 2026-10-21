@@ -101,13 +101,24 @@ int main(void)
       {
 
       }
-      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 10000);
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, angle[angleIndex]);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  uint8_t currentState = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
+	  if (currentState == GPIO_PIN_SET && lastButtonState == GPIO_PIN_RESET) {
+		  uint32_t now = HAL_GetTick();
+		  if (now - lastDebounceTime > 50) {
+			  lastDebounceTime = now;
+			  angleIndex = (angleIndex +1) % 2;
+			  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, angle[angleIndex]);
+		  }
+	  }
+
+	  lastButtonState = currentState;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
