@@ -42,12 +42,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 TIM_HandleTypeDef htim3;
-uint16_t angle[] = {50, 2500};
-uint32_t lastDebounceTime = 0;
-uint8_t angleIndex = 0;
-uint8_t lastButtonState = GPIO_PIN_RESET;
-/* USER CODE BEGIN PV */
 
+/* USER CODE BEGIN PV */
+uint16_t angleArray[] = {200, 1000};
+uint16_t angle = 0;
+uint8_t angleIndex = 0;
+uint32_t last_trigger = 0;
+uint8_t rising = 1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,7 +100,7 @@ int main(void)
 if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3)) {
 
 }
-	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle[angleIndex]);
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -107,16 +108,24 @@ if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3)) {
   while (1)
   {
 	  uint8_t currentState = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
-	  	  if (currentState == GPIO_PIN_SET && lastButtonState == GPIO_PIN_RESET) {
-	  		  uint32_t now = HAL_GetTick();
-	  		  if (now - lastDebounceTime > 50) {
-	  			  lastDebounceTime = now;
-	  			  angleIndex = (angleIndex +1) % 2;
-	  			  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle[angleIndex]);
+	  uint32_t now = HAL_GetTick();
+	  		  if (now - last_trigger > 10) {
+	  			  if (rising == 1) {
+	  				  angle = angle + 1;
+	  				 __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle);
+	  				 if (angle >= 1000) {
+	  					 rising = 0;
+	  				 }
+	  			  } else {
+	  				  angle = angle - 1;
+	  				__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle);
+	  				if (angle <= 200) {
+	  					rising = 1;
+	  				}
+	  			  }
+	  			last_trigger = HAL_GetTick();
 	  		  }
-	  	  }
 
-	  	  lastButtonState = currentState;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -225,7 +234,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 249;
+  htim3.Init.Prescaler = 80;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 19999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
