@@ -49,6 +49,7 @@ uint16_t angle = 0;
 uint8_t angleIndex = 0;
 uint32_t last_trigger = 0;
 uint8_t rising = 1;
+uint16_t angleVariable = 200;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -107,29 +108,31 @@ if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3)) {
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  uint8_t currentState = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
-	  uint32_t now = HAL_GetTick();
-	  		  if (now - last_trigger > 10) {
-	  			  if (rising == 1) {
-	  				  angle = angle + 1;
-	  				 __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle);
-	  				 if (angle >= 1000) {
-	  					 rising = 0;
-	  				 }
-	  			  } else {
-	  				  angle = angle - 1;
-	  				__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle);
-	  				if (angle <= 200) {
-	  					rising = 1;
-	  				}
-	  			  }
-	  			last_trigger = HAL_GetTick();
-	  		  }
-
+	 GPIO_PinState limit_Switch = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6);
+	 if (angleVariable >= 0){
+	 	  if(limit_Switch == GPIO_PIN_SET || limit_Switch == GPIO_PIN_RESET){
+	 		  if(limit_Switch == GPIO_PIN_SET){
+	 			angleVariable++;
+	 	  	} else {
+	 	  		angleVariable--;
+	 	  	}
+	 	  	if(angleVariable > 1000 || angleVariable < 200){
+	 	  		if(angleVariable > 1000){
+	 	  			angleVariable = 1000;
+	 	  			}else {
+	 	  			   angleVariable = 200;
+	 	  				}
+	 	  		}
+	 	  			if(angleVariable >= 200){
+	 	  				angle = (uint32_t)((angleVariable-200)*0.3375);
+	 	  				__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle);
+	 	  				}
+	 	  			}
+	 }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+
   /* USER CODE END 3 */
 }
 
@@ -297,6 +300,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PC6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
