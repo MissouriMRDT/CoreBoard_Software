@@ -59,6 +59,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define HEARTBEAT_Pin GPIO_PIN_0
 #define HEARTBEAT_GPIO_Port GPIOC
+#define TEMP_OUT_Pin GPIO_PIN_4
+#define TEMP_OUT_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

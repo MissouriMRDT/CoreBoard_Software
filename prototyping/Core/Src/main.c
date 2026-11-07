@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "thermistor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,11 +40,13 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-
+ADC_HandleTypeDef hadc1;
 FDCAN_HandleTypeDef hfdcan1;
+Thermistor_t temp_sensor;
 
 /* USER CODE BEGIN PV */
-
+volatile uint32_t adc_value = 0;
+volatile uint8_t  adc_flag = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -53,12 +55,14 @@ static void MPU_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_ICACHE_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+HAL_ADC_Start_IT();
 
 /* USER CODE END 0 */
 
@@ -96,14 +100,25 @@ int main(void)
   MX_GPIO_Init();
   MX_FDCAN1_Init();
   MX_ICACHE_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
+  Thermistor_Init(&temp_sensor);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  HAL_ADC_Start(&hadc1); //Starts ADC1
+
+	  if (HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK) { //Checks to verify the Conversion has completed for 10ms
+
+	          uint32_t raw_val = HAL_ADC_GetValue(&hadc1);
+	          Thermistor_Update(&temp_sensor, raw_val); //Updates the Temperature
+	  }
+
+	  HAL_ADC_Stop(&hadc1); //Stops ADC1 from Continously Reading the Analog Signal
+	  HAL_Delay(500); // 500ms Delay
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -160,6 +175,69 @@ void SystemClock_Config(void)
   /** Configure the programming delay
   */
   __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_0);
+}
+
+/**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Common config
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.LowPowerAutoWait = DISABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.NbrOfConversion = 1;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T1_TRGO;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
+  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.SamplingMode = ADC_SAMPLING_MODE_NORMAL;
+  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc1.Init.OversamplingMode = ENABLE;
+  hadc1.Init.Oversampling.Ratio = ADC_OVERSAMPLING_RATIO_2;
+  hadc1.Init.Oversampling.RightBitShift = ADC_RIGHTBITSHIFT_NONE;
+  hadc1.Init.Oversampling.TriggeredMode = ADC_TRIGGEREDMODE_SINGLE_TRIGGER;
+  hadc1.Init.Oversampling.OversamplingStopReset = ADC_REGOVERSAMPLING_CONTINUED_MODE;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_18;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+  sConfig.SingleDiff = ADC_SINGLE_ENDED;
+  sConfig.OffsetNumber = ADC_OFFSET_NONE;
+  sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
 }
 
 /**
