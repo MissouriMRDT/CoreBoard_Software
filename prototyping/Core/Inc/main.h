@@ -49,6 +49,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -59,6 +61,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define HEARTBEAT_Pin GPIO_PIN_0
 #define HEARTBEAT_GPIO_Port GPIOC
+#define TEMP_OUT_Pin GPIO_PIN_4
+#define TEMP_OUT_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
