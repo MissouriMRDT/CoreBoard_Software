@@ -129,6 +129,7 @@ if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3)) {
 	 	  				}
 	 	  			}
 	 }
+  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
