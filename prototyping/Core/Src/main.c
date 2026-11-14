@@ -41,12 +41,14 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+
 FDCAN_HandleTypeDef hfdcan1;
-Thermistor_t temp_sensor;
 
 /* USER CODE BEGIN PV */
 volatile uint32_t adc_value = 0;
 volatile uint8_t  adc_flag = 0;
+HAL_StatusTypeDef whatHappen;
+Thermistor_t temp_sensor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,7 +64,6 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-HAL_ADC_Start_IT();
 
 /* USER CODE END 0 */
 
@@ -103,6 +104,7 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   Thermistor_Init(&temp_sensor);
+  HAL_StatusTypeDef StatusTemp;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -110,15 +112,15 @@ int main(void)
   while (1)
   {
 	  HAL_ADC_Start(&hadc1); //Starts ADC1
-
-	  if (HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK) { //Checks to verify the Conversion has completed for 10ms
+	  StatusTemp = HAL_ADC_PollForConversion(&hadc1, 1000);
+	  if(StatusTemp == HAL_OK) { //Checks to verify the Conversion has completed for 10ms
 
 	          uint32_t raw_val = HAL_ADC_GetValue(&hadc1);
 	          Thermistor_Update(&temp_sensor, raw_val); //Updates the Temperature
 	  }
 
-	  HAL_ADC_Stop(&hadc1); //Stops ADC1 from Continously Reading the Analog Signal
-	  HAL_Delay(500); // 500ms Delay
+	 //HAL_ADC_Stop(&hadc1); //Stops ADC1 from Continously Reading the Analog Signal
+ 	 HAL_Delay(500); // 500ms Delay
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -198,7 +200,7 @@ static void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
@@ -207,16 +209,12 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T1_TRGO;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.DMAContinuousRequests = DISABLE;
   hadc1.Init.SamplingMode = ADC_SAMPLING_MODE_NORMAL;
-  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc1.Init.OversamplingMode = ENABLE;
-  hadc1.Init.Oversampling.Ratio = ADC_OVERSAMPLING_RATIO_2;
-  hadc1.Init.Oversampling.RightBitShift = ADC_RIGHTBITSHIFT_NONE;
-  hadc1.Init.Oversampling.TriggeredMode = ADC_TRIGGEREDMODE_SINGLE_TRIGGER;
-  hadc1.Init.Oversampling.OversamplingStopReset = ADC_REGOVERSAMPLING_CONTINUED_MODE;
+  hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
+  hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();

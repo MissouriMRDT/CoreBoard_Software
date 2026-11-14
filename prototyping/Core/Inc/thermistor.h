@@ -11,6 +11,7 @@
 
 
 #include <stdint.h>
+#include <math.h>
 
 // Data Structures: Holds all variables related to the thermistor
 #define THERMISTOR_ADC_MAX   4095.0f

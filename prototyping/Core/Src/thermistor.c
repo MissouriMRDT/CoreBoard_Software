@@ -14,8 +14,9 @@ void Thermistor_Init(Thermistor_t *dev) { //Initializes the Thermistor
 
 float Thermistor_ConvertRawToTempC(uint32_t raw_adc){ // Converts the Raw ADC value to a Temp in C
 
+	if (raw_adc == 0 || raw_adc >= 4095) return -273.15f;
 	float voltage = ((float)raw_adc /THERMISTOR_ADC_MAX) * THERMISTOR_VREF; //Calculate Voltage across Thermistor
-	float resistance = RESISTANCE_DIV*(voltage/(THERMISTOR_VREF-voltage));  //Calculate Reisistance of Thermistor using Voltage Divider
+	float resistance = RESISTOR_DIV*(voltage/(THERMISTOR_VREF-voltage));  //Calculate Reisistance of Thermistor using Voltage Divider
 	float steinhart = resistance / THERMISTOR_R25; //Start Steinhart Temperature Equation
 		steinhart = logf(steinhart);
 	    steinhart /= THERMISTOR_BETA;

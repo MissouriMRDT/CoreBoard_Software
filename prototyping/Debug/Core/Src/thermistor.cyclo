@@ -1,0 +1,3 @@
+../Core/Src/thermistor.c:9:6:Thermistor_Init	2
+../Core/Src/thermistor.c:15:7:Thermistor_ConvertRawToTempC	3
+../Core/Src/thermistor.c:28:6:Thermistor_Update	2
