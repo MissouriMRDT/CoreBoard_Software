@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,7 +50,8 @@ uint16_t angle = 0;
 uint8_t angleIndex = 0;
 uint32_t last_trigger = 0;
 uint8_t rising = 1;
-uint16_t angleVariable = 200;
+uint16_t angleVariable = 750;
+uint8_t forward = 1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,27 +110,31 @@ if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3)) {
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	 GPIO_PinState limit_Switch = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6);
-	 if (angleVariable >= 0){
-	 	  if(limit_Switch == GPIO_PIN_SET || limit_Switch == GPIO_PIN_RESET){
-	 		  if(limit_Switch == GPIO_PIN_SET){
+	  HAL_Delay(10);
+	  printf("Current angle: %d\n", angleVariable);
+//	 GPIO_PinState limit_Switch = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6);
+	 if (forward){
+//	 	  if(limit_Switch == GPIO_PIN_SET || limit_Switch == GPIO_PIN_RESET){
+//	 		  if(limit_Switch == GPIO_PIN_SET){
 	 			angleVariable++;
-	 	  	} else {
+	 		  } else {
 	 	  		angleVariable--;
-	 	  	}
-	 	  	if(angleVariable > 1000 || angleVariable < 200){
-	 	  		if(angleVariable > 1000){
-	 	  			angleVariable = 1000;
-	 	  			}else {
-	 	  			   angleVariable = 200;
-	 	  				}
+	 		  }
+	 	  	if(angleVariable >= 2500 || angleVariable <= 500){
+	 	  		if(angleVariable >= 2500){
+	 	  			forward = 0;
+	 	  		} else {
+	 	  			forward = 1;
 	 	  		}
-	 	  			if(angleVariable >= 200){
-	 	  				angle = (uint32_t)((angleVariable-200)*0.3375);
-	 	  				__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle);
-	 	  				}
-	 	  			}
+//	 	  	}
+//	 	  	if(angleVariable >= 200){
+//	 	  		angle = (uint32_t)((angleVariable-200)*0.3375);
+
+//	 	  	}
+//	 	  }
 	 }
+	 	   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angleVariable);
+	 	  	fflush(stdout);
   }
     /* USER CODE END WHILE */
 
@@ -238,7 +244,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 80;
+  htim3.Init.Prescaler = 31;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 19999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

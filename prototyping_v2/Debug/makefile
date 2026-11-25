@@ -60,8 +60,8 @@ all: main-build
 main-build: prototype_v2.elf secondary-outputs
 
 # Tool invocations
-prototype_v2.elf prototype_v2.map: $(OBJS) $(USER_OBJS) C:\Users\Clone\Documents\GitHub\CoreBoard_Software\prototyping_v2\STM32H563RITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "prototype_v2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"C:\Users\Clone\Documents\GitHub\CoreBoard_Software\prototyping_v2\STM32H563RITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="prototype_v2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+prototype_v2.elf prototype_v2.map: $(OBJS) $(USER_OBJS) C:\Users\blaydn\Documents\Github\CoreBoard_Software\prototyping_v2\STM32H563RITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "prototype_v2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"C:\Users\blaydn\Documents\Github\CoreBoard_Software\prototyping_v2\STM32H563RITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="prototype_v2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
