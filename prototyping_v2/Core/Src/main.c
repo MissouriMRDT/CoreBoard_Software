@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <stdlib.h>
+#include <STM32PWM.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,6 +53,8 @@ uint32_t last_trigger = 0;
 uint8_t rising = 1;
 uint16_t angleVariable = 750;
 uint8_t forward = 1;
+Servo_t servo1;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -100,10 +103,12 @@ int main(void)
   MX_TIM3_Init();
   MX_ICACHE_Init();
   /* USER CODE BEGIN 2 */
-if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3)) {
-
-}
-	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle);
+//if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3)) {
+//
+//}
+//	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angle);
+Servo_Init_Custom(&servo1, &htim3, TIM_CHANNEL_3, 500, 2500, 270);
+Servo_SetAngle(&servo1, angle);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,7 +116,7 @@ if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3)) {
   while (1)
   {
 	  HAL_Delay(10);
-	  printf("Current angle: %d\n", angleVariable);
+	  printf("Current pulse length: %dus\n", angleVariable);
 //	 GPIO_PinState limit_Switch = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6);
 	 if (forward){
 //	 	  if(limit_Switch == GPIO_PIN_SET || limit_Switch == GPIO_PIN_RESET){
@@ -133,7 +138,7 @@ if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3)) {
 //	 	  	}
 //	 	  }
 	 }
-	 	   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, angleVariable);
+	 	   Servo_SetMicroseconds(&servo1, angleVariable);
 	 	  	fflush(stdout);
   }
     /* USER CODE END WHILE */
